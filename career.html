@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Career Path Quiz · LifePath</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F9F8F5;--surface:#F2EFE9;--card:#FFFFFF;--border:#E2DDD6;
+  --ink:#1C1C1C;--inkMid:#6B6560;--inkDim:#B8B4AC;
+  --accent:#1C3D6B;--accentL:#2E5FA3;--accentBg:rgba(28,61,107,0.06);
+  --gold:#C4873A;--green:#2A7A52;--coral:#C44A3A;--purple:#6B3A8A;--teal:#2A7A8A;
+  --ff:'DM Serif Display',Georgia,serif;
+  --sans:'Plus Jakarta Sans',sans-serif;
+  --mono:'Fira Code',monospace;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.nav-logo{font-family:var(--ff);font-size:18px;color:var(--ink);text-decoration:none}
+.nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accentL);text-decoration:none;letter-spacing:0.05em}
+
+/* INTRO */
+.intro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 60px}
+.intro-eye{font-size:10px;font-family:var(--mono);color:var(--accentL);letter-spacing:0.3em;margin-bottom:20px}
+.intro-h1{font-family:var(--ff);font-size:clamp(44px,9vw,72px);font-weight:400;color:var(--ink);line-height:1;letter-spacing:-0.025em;margin-bottom:6px}
+.intro-bar{width:60px;height:3px;background:var(--accent);border-radius:2px;margin:20px 0 24px}
+.intro-p{font-size:16px;color:var(--inkMid);line-height:1.8;max-width:460px;margin-bottom:32px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+.tag{font-size:11px;font-family:var(--mono);color:var(--inkMid);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+.btn-start{background:var(--ink);color:#fff;border:none;padding:15px 36px;border-radius:30px;font-size:14px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em}
+.intro-note{margin-top:14px;font-size:11px;color:var(--inkDim);font-family:var(--mono)}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:28px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:8px}
+.progress-cat{font-size:10px;font-family:var(--mono);color:var(--inkMid);letter-spacing:0.2em}
+.progress-num{font-size:10px;font-family:var(--mono);color:var(--inkDim)}
+.progress-bar{display:flex;gap:3px}
+.progress-seg{height:3px;border-radius:2px;background:var(--border);transition:all 0.3s ease}
+.progress-seg.done{background:var(--accent)}
+.progress-seg.active{flex:3;background:var(--accent)}
+
+/* QUIZ */
+.quiz-wrap{padding-top:80px;padding-bottom:120px}
+.q-dot-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.q-dot{width:6px;height:6px;border-radius:50%;background:var(--ink)}
+.q-label{font-size:10px;font-family:var(--mono);color:var(--inkMid);letter-spacing:0.12em}
+.q-text{font-family:var(--ff);font-size:clamp(20px,4vw,28px);font-weight:400;color:var(--ink);margin-bottom:6px;line-height:1.3;letter-spacing:-0.015em}
+.q-instr{font-size:11px;color:var(--inkDim);font-family:var(--mono);margin-bottom:20px;letter-spacing:0.05em}
+.q-sel-count{color:var(--gold)}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.opt{display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;font-family:var(--sans)}
+.opt:hover{border-color:var(--accent);background:var(--accentBg)}
+.opt.selected{background:var(--accentBg);border-color:var(--accent)}
+.opt-icon{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.opt-label{font-size:14px;color:var(--ink);flex:1;line-height:1.4;font-weight:400}
+.opt.selected .opt-label{color:var(--accentL);font-weight:500}
+.opt-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all 0.15s}
+.opt-check.multi{border-radius:4px}
+.opt.selected .opt-check{background:var(--accent);border-color:var(--accent)}
+.opt.disabled{opacity:0.35;cursor:not-allowed}
+.opt.disabled:hover{border-color:var(--border);background:var(--card)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(249,248,245,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:14px 20px 24px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.btn-back{background:none;border:1px solid var(--border);color:var(--inkMid);font-family:var(--mono);font-size:12px;cursor:pointer;padding:9px 18px;border-radius:20px}
+.btn-back.hidden{opacity:0;pointer-events:none}
+.nav-sel{font-size:11px;color:var(--inkDim);font-family:var(--mono)}
+.btn-next{background:var(--ink);border:none;color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em;transition:all 0.15s}
+.btn-next.disabled{background:var(--border);color:var(--inkMid);cursor:default}
+
+/* RESULTS */
+.results-wrap{padding-top:80px;padding-bottom:60px}
+.results-eye{font-size:10px;font-family:var(--mono);color:var(--accentL);letter-spacing:0.3em;margin-bottom:12px}
+.results-h{font-family:var(--ff);font-size:clamp(32px,6vw,52px);font-weight:400;color:var(--ink);margin-bottom:12px;letter-spacing:-0.025em;line-height:1}
+.results-sub{font-size:14px;color:var(--inkMid);line-height:1.7;margin-bottom:32px}
+
+/* RESULT CARD */
+.r-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px;transition:all 0.2s}
+.r-card.open{box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+.r-header{width:100%;background:none;border:none;cursor:pointer;padding:20px 24px;text-align:left;display:flex;align-items:center;gap:14px}
+.r-icon{width:50px;height:50px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.r-info{flex:1}
+.r-badges{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.r-badge{font-size:9px;font-family:var(--mono);font-weight:700;letter-spacing:0.12em;padding:2px 8px;border-radius:10px}
+.r-title{font-size:17px;font-weight:600;color:var(--ink);font-family:var(--sans)}
+.r-hl{font-size:12px;color:var(--inkMid);font-family:var(--mono);margin-top:2px}
+.r-score-wrap{text-align:right;flex-shrink:0}
+.r-score{font-size:28px;font-weight:700;font-family:var(--mono);line-height:1}
+.r-score-lbl{font-size:9px;color:var(--inkDim);font-family:var(--mono)}
+.r-toggle{color:var(--inkDim);font-size:12px;margin-left:4px}
+
+.r-body{padding:4px 24px 28px;border-top:1px solid var(--border)}
+.r-summary{font-size:14px;color:var(--inkMid);line-height:1.8;margin:18px 0 20px;border-left:3px solid;padding-left:14px}
+.section-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.18em;color:var(--inkDim);margin-bottom:10px;text-transform:uppercase}
+.scores-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;background:var(--surface);border-radius:10px;padding:16px;margin-bottom:20px}
+.score-row{display:flex;justify-content:space-between;align-items:center}
+.score-lbl{font-size:11px;color:var(--inkMid);font-family:var(--mono)}
+.score-dots{display:flex;gap:3px}
+.score-dot{width:8px;height:8px;border-radius:50%}
+.entry-row{padding:12px 14px;border-radius:8px;margin-bottom:4px}
+.entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.entry-title{font-size:14px;color:var(--ink);font-weight:500}
+.entry-sal{font-size:12px;font-weight:700;font-family:var(--mono)}
+.entry-time{font-size:11px;color:var(--inkMid);font-family:var(--mono);margin-top:3px}
+.industry-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.ind-tag{font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:16px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.info-box{background:var(--surface);border-radius:10px;padding:12px 14px}
+.info-box-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.12em;color:var(--inkDim);margin-bottom:5px;text-transform:uppercase}
+.info-box-val{font-size:12px;color:var(--inkMid);line-height:1.5}
+.watch-box{border-radius:10px;padding:12px 16px}
+.watch-kw{font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:0.12em}
+.watch-txt{font-size:13px;color:var(--inkMid);line-height:1.6}
+
+/* OTHERS */
+.others-lbl{font-size:10px;font-family:var(--mono);letter-spacing:0.2em;color:var(--inkDim);margin-bottom:12px;text-transform:uppercase}
+.others-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.other-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.other-name{font-size:13px;color:var(--ink);font-weight:500}
+.other-pct{font-size:10px;font-family:var(--mono);color:var(--inkDim)}
+.btn-retake{background:none;border:1px solid var(--border);color:var(--inkMid);font-size:12px;font-family:var(--mono);cursor:pointer;padding:10px 24px;border-radius:20px;letter-spacing:0.08em}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">✦ LifePath</a>
+  <a class="nav-back" href="/">← Back to Home</a>
+</nav>
+
+<div class="wrap" id="app"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {id:"age",num:1,cat:"About You",q:"How old are you?",type:"single",
+   opts:[{l:"Under 18",i:"🌱",t:["young","hs"]},{l:"18–22",i:"⚡",t:["college","early"]},{l:"23–27",i:"🔥",t:["early_career"]},{l:"28–35",i:"💡",t:["mid_career"]},{l:"35+",i:"🏆",t:["senior"]}]},
+  {id:"edu",num:2,cat:"About You",q:"What's your current education level?",type:"single",
+   opts:[{l:"Still in high school",i:"📚",t:["hs","no_degree"]},{l:"Some college / currently enrolled",i:"🎒",t:["in_school"]},{l:"Associate degree or trade certification",i:"🔧",t:["trade_cert","skilled"]},{l:"Bachelor's degree",i:"🎓",t:["degree","corporate"]},{l:"Master's degree or higher",i:"🏛️",t:["advanced","expert","corporate"]},{l:"No degree — self-taught / work experience",i:"💪",t:["self_taught","trade_ok"]}]},
+  {id:"apt",num:3,cat:"Your Strengths",q:"What subjects or areas have always come naturally to you?",type:"multi",max:4,
+   opts:[{l:"Math, numbers, and logic",i:"🔢",t:["analytical","finance","data","engineering"]},{l:"Writing, communication, and language",i:"✍️",t:["content","marketing","law","consulting"]},{l:"Science and how things work",i:"🔬",t:["engineering","healthcare","research"]},{l:"People, relationships, and helping others",i:"🤝",t:["social_work","hr","healthcare","sales"]},{l:"Art, design, and creative expression",i:"🎨",t:["design","media","creative"]},{l:"Technology and computers",i:"💻",t:["tech","data","engineering"]},{l:"Business, money, and strategy",i:"📊",t:["finance","consulting","ops","strategy"]},{l:"Building, fixing, and working with your hands",i:"🔨",t:["trades","skilled","engineering"]},{l:"Leadership and organizing people",i:"🧭",t:["management","ops","consulting"]},{l:"Research and deep learning",i:"🔍",t:["research","data","law","healthcare"]}]},
+  {id:"ind",num:4,cat:"Your Interests",q:"Which industries genuinely interest you?",type:"multi",max:4,
+   opts:[{l:"Technology and software",i:"💻",t:["tech"]},{l:"Healthcare and medicine",i:"🏥",t:["healthcare"]},{l:"Business, finance, and consulting",i:"📈",t:["finance","consulting"]},{l:"Trades and skilled labor",i:"⚡",t:["trades"]},{l:"Education and social services",i:"📚",t:["social_work"]},{l:"Media, entertainment, and creative arts",i:"🎬",t:["media","creative"]},{l:"Government, military, or public service",i:"🏛️",t:["government"]},{l:"Supply chain, logistics, and operations",i:"🚚",t:["ops","scm"]},{l:"Law and criminal justice",i:"⚖️",t:["law"]},{l:"Real estate and property",i:"🏠",t:["realestate"]},{l:"Entrepreneurship and startups",i:"🚀",t:["startup"]},{l:"Science and engineering",i:"🔬",t:["engineering"]}]},
+  {id:"env",num:5,cat:"How You Work",q:"What does your ideal work environment look like?",type:"multi",max:3,
+   opts:[{l:"Fully remote — I work best from home or anywhere",i:"🌐",t:["remote_strong"]},{l:"Hybrid — some office, some remote",i:"🔄",t:["remote_hybrid"]},{l:"In-person — I need the structure and people",i:"🏢",t:["inperson"]},{l:"Field work — I want to be out in the world",i:"🌍",t:["field","trades"]},{l:"I want to own my own schedule completely",i:"⏰",t:["freelance","startup"]},{l:"I'd love to travel for work",i:"✈️",t:["consulting","field","sales"]}]},
+  {id:"ppl",num:6,cat:"How You Work",q:"How do you feel about working with people day to day?",type:"single",
+   opts:[{l:"I thrive on constant collaboration and team energy",i:"🙌",t:["collab","sales","hr","consulting"]},{l:"I like working with people but need solo time too",i:"⚖️",t:["hybrid_social","management"]},{l:"I prefer mostly independent work with occasional check-ins",i:"🎯",t:["independent","data","engineering"]},{l:"I work best almost entirely alone",i:"🧘",t:["solo","research","data","creative"]}]},
+  {id:"prob",num:7,cat:"How You Think",q:"What kind of problems do you most enjoy solving?",type:"multi",max:3,
+   opts:[{l:"Technical problems — systems, code, engineering",i:"⚙️",t:["tech","engineering","data"]},{l:"Human problems — helping, coaching, or supporting people",i:"❤️",t:["healthcare","social_work","hr"]},{l:"Creative problems — design, storytelling, making something new",i:"✨",t:["creative","media","design"]},{l:"Strategic problems — planning, analysis, big picture decisions",i:"🗺️",t:["consulting","strategy","finance"]},{l:"Operational problems — making processes faster and more efficient",i:"⚡",t:["ops","scm","management"]},{l:"Physical problems — building, fixing, or working with your hands",i:"🔨",t:["trades","engineering"]}]},
+  {id:"inc",num:8,cat:"What Matters",q:"How important is income potential to you right now?",type:"single",
+   opts:[{l:"Top priority — I need to maximize earning potential",i:"💰",t:["high_income","finance","tech","consulting"]},{l:"Very important but not the only factor",i:"📊",t:["income_balanced"]},{l:"Important but I'd take less pay for work I love",i:"🌟",t:["fulfillment"]},{l:"I care more about impact and fulfillment than money",i:"💙",t:["social_work","government","education"]}]},
+  {id:"risk",num:9,cat:"What Matters",q:"What's your relationship with risk?",type:"single",
+   opts:[{l:"I want stability — steady paycheck, clear career path",i:"🏛️",t:["stable","government","corporate","trades"]},{l:"Some risk is fine if the upside is real",i:"📈",t:["moderate_risk","corporate"]},{l:"I'm comfortable with significant uncertainty for the right opportunity",i:"🎯",t:["high_risk","startup"]},{l:"I want full ownership of my income even if it's harder",i:"🔑",t:["freelance","startup","trades"]}]},
+  {id:"edu2",num:10,cat:"Your Path",q:"How do you feel about ongoing education and certifications?",type:"multi",max:5,
+   opts:[{l:"Open to a 2–4 year degree if it's the right path",i:"🎓",t:["degree_ok"]},{l:"I'd do a short certification or bootcamp (3–12 months)",i:"⚡",t:["cert_ok","tech","trades"]},{l:"I want to learn on the job — formal education isn't for me",i:"💪",t:["otj","trades","startup"]},{l:"I'm already credentialed and want to use what I have",i:"✅",t:["credentialed"]},{l:"I'm interested in trade school or apprenticeship programs",i:"🔧",t:["trades","apprentice"]}]},
+  {id:"suc",num:11,cat:"Your Future",q:"What does success look like in 7–10 years?",type:"multi",max:3,
+   opts:[{l:"Senior leadership or executive title",i:"🏆",t:["management","corporate","ops"]},{l:"Deep expert in a specific niche — the go-to person",i:"🔬",t:["expert","data","engineering","healthcare"]},{l:"Running my own business or practice",i:"🚀",t:["startup","freelance","trades"]},{l:"High income with strong work-life balance",i:"⚖️",t:["high_income","remote_strong","trades"]},{l:"Doing work that creates real impact on people or communities",i:"🌍",t:["social_work","government","healthcare"]},{l:"Location and lifestyle freedom",i:"✈️",t:["remote_strong","freelance","startup"]},{l:"Owning my time completely",i:"⏰",t:["freelance","trades","startup"]}]},
+  {id:"ws",num:12,cat:"Your Future",q:"Which work style fits you best?",type:"multi",max:2,
+   opts:[{l:"Clear deliverables and defined success metrics",i:"📋",t:["corporate","ops","data"]},{l:"Variety — no two days the same",i:"🌀",t:["consulting","sales","field"]},{l:"Building things over long time horizons",i:"🏗️",t:["engineering","research","management"]},{l:"Fast-paced environments with quick results",i:"⚡",t:["startup","sales","ops"]},{l:"Creative freedom with room to experiment",i:"🎨",t:["creative","design","media","startup"]},{l:"Structured systems with room to improve them",i:"⚙️",t:["ops","scm","engineering"]}]},
+  {id:"con",num:13,cat:"Right Now",q:"What's your biggest concern about your career right now?",type:"multi",max:3,
+   opts:[{l:"I don't know what I actually want to do",i:"🧭",t:["undecided"]},{l:"I'm worried about income — I need to earn more",i:"💸",t:["high_income"]},{l:"I feel stuck in the wrong field",i:"🔀",t:["career_change"]},{l:"I don't have the right credentials or experience",i:"📄",t:["cert_ok","degree_ok"]},{l:"I'm not sure if my skills translate to anything valuable",i:"❓",t:["skills_doubt"]},{l:"The job market feels too competitive",i:"🏁",t:["competitive"]},{l:"I'm torn between multiple paths I'm interested in",i:"🔱",t:["multi_path"]},{l:"I'm worried about job security in a world with AI",i:"🤖",t:["ai_concern","trades","healthcare"]}]},
+  {id:"db",num:14,cat:"Right Now",q:"Which of these would make a career feel like the wrong fit?",type:"multi",max:8,
+   opts:[{l:"Repetitive tasks with no variety",i:"😴",t:["avoid_routine"]},{l:"No clear path for advancement",i:"🚫",t:["avoid_dead_end"]},{l:"Requiring a long or expensive degree I don't want",i:"💸",t:["avoid_degree"]},{l:"Physically demanding work",i:"🏋️",t:["avoid_physical"]},{l:"High-pressure sales or cold outreach",i:"📞",t:["avoid_sales"]},{l:"Being stuck behind a screen all day",i:"🖥️",t:["avoid_desk"]},{l:"No remote work options at all",i:"🏢",t:["avoid_inperson"]},{l:"Unstable income or contract-only work",i:"📉",t:["avoid_unstable"]}]}
+];
+
+const PROFILES = [
+  {id:"tech",title:"Technology & Software",hl:"You're wired for the digital economy.",icon:"💻",color:"#1E3A5F",accent:"#4A90D9",accentBg:"rgba(74,144,217,0.08)",
+   summary:"Your analytical instincts, comfort with technology, and preference for independent problem-solving point strongly toward tech. It's one of the most remote-friendly, high-income fields available.",
+   rem:5,inc:5,stab:4,
+   entries:[{t:"Software Engineering",time:"4-yr degree or bootcamp (6–12 mo)",sal:"$75K–$130K"},{t:"Data Analytics",time:"Degree or self-taught + certs",sal:"$60K–$100K"},{t:"UX/Product Design",time:"Bootcamp or degree, 6–18 mo",sal:"$65K–$110K"},{t:"Cybersecurity",time:"Certs (CompTIA, CISSP), 6–12 mo",sal:"$70K–$120K"}],
+   inds:["Big Tech (Google, Microsoft, Apple)","Fintech and Startups","Healthcare Tech","Government / Defense Tech"],
+   remote:"One of the most remote-friendly fields. Most roles can be done fully remote.",
+   cert:"A focused bootcamp or Google/Meta/AWS certification (3–12 months) is a legitimate entry point without a degree.",
+   watch:"The field is competitive at entry level right now due to AI. Specializing early (AI/ML, security, data) beats being a generalist.",
+   tags:["tech","data","engineering","remote_strong","remote_hybrid","high_income"]},
+  {id:"healthcare",title:"Healthcare & Allied Health",hl:"You're built for work that actually matters.",icon:"🏥",color:"#1F4A35",accent:"#3DBF7A",accentBg:"rgba(61,191,122,0.08)",
+   summary:"Healthcare is one of the most AI-proof, recession-proof sectors in existence. If you're drawn to helping people and science, this field has one of the highest long-term return profiles of any career.",
+   rem:2,inc:4,stab:5,
+   entries:[{t:"Registered Nurse (RN)",time:"2–4 year degree",sal:"$65K–$95K+"},{t:"Physician Assistant / NP",time:"Graduate degree (6–8 yrs)",sal:"$100K–$150K+"},{t:"Medical Coder / Biller",time:"Certification, 3–6 months",sal:"$40K–$65K (remote-friendly)"},{t:"Healthcare Administration",time:"2–4 year degree",sal:"$55K–$90K"}],
+   inds:["Hospital Systems","Private Practice","Insurance & Health Plans","Health Tech Startups"],
+   remote:"Limited for clinical roles but strong for healthcare admin, medical coding, and health IT roles.",
+   cert:"Medical coding is one of the fastest legitimate entry points — 3–6 month cert, remote work, growing demand.",
+   watch:"Clinical roles require significant upfront education investment. Know the difference between clinical and administrative paths before committing.",
+   tags:["healthcare","social_work","research","stable","government"]},
+  {id:"trades",title:"Skilled Trades & Technical Work",hl:"The most underrated high-income path in America.",icon:"⚡",color:"#4A2A10",accent:"#C4873A",accentBg:"rgba(196,135,58,0.08)",
+   summary:"Skilled trades are experiencing a generational shortage — demand is massive, competition is low, and you can be earning six figures in 3–4 years without student debt.",
+   rem:1,inc:4,stab:5,
+   entries:[{t:"Electrician",time:"Apprenticeship 4–5 yrs",sal:"$60K–$100K+"},{t:"HVAC Technician",time:"Trade school 6–24 mo + cert",sal:"$50K–$90K+"},{t:"Plumber",time:"Apprenticeship 4–5 yrs",sal:"$55K–$100K+"},{t:"Welder / CNC Machinist",time:"Trade school 6–18 mo",sal:"$45K–$85K+"}],
+   inds:["Residential & Commercial Construction","Manufacturing","Energy & Utilities","Own Your Own Business"],
+   remote:"Field-based work — no remote. But you own your schedule and can build toward running your own shop.",
+   cert:"Most trades have apprenticeship programs that pay you while you learn. Zero tuition, earn while training.",
+   watch:"Physically demanding — factor in long-term body wear. The real wealth comes from moving from labor to ownership.",
+   tags:["trades","skilled","field","avoid_degree","avoid_desk","stable","freelance"]},
+  {id:"consulting",title:"Consulting & Business Strategy",hl:"You solve problems for a living — and get paid well for it.",icon:"📊",color:"#1E2A5F",accent:"#6A7FD9",accentBg:"rgba(106,127,217,0.08)",
+   summary:"You're drawn to strategy, variety, and high-stakes problem solving. Consulting rewards analytical rigor, communication, and the ability to navigate complex organizations.",
+   rem:3,inc:5,stab:3,
+   entries:[{t:"Management Consulting (Big 4 / MBB)",time:"Bachelor's degree minimum, MBA preferred",sal:"$80K–$130K"},{t:"Operations / Supply Chain Consulting",time:"Bachelor's degree + relevant experience",sal:"$70K–$120K"},{t:"HR / People Consulting",time:"Degree + HR certs (SHRM)",sal:"$60K–$100K"},{t:"Freelance / Independent Consultant",time:"10+ years expertise in any field",sal:"$80–$300/hr"}],
+   inds:["Big 4 (Deloitte, PwC, KPMG, EY)","Boutique Strategy Firms","Corporate Strategy Teams","Independent / Fractional"],
+   remote:"Hybrid is the norm — client work requires presence but much of the analysis is remote.",
+   cert:"MBA accelerates the path significantly but isn't mandatory. PMP and Six Sigma are strong add-ons.",
+   watch:"High travel demand in traditional consulting. Internal strategy roles offer similar work with better work-life balance.",
+   tags:["consulting","strategy","management","finance","analytical","ops"]},
+  {id:"creative",title:"Creative & Media",hl:"You see the world differently — and there's a market for that.",icon:"🎨",color:"#4A1A3A",accent:"#C44A8A",accentBg:"rgba(196,74,138,0.08)",
+   summary:"Creative careers are more viable than ever. The most successful people pair creative talent with business or technical skills. Design, content strategy, UX, and brand are all high-value, remote-friendly fields.",
+   rem:5,inc:3,stab:3,
+   entries:[{t:"Brand / Graphic Designer",time:"Degree or self-taught portfolio",sal:"$45K–$90K"},{t:"UX / Product Designer",time:"Bootcamp or degree, portfolio",sal:"$70K–$120K"},{t:"Content Strategist / Copywriter",time:"Self-taught or degree, strong portfolio",sal:"$50K–$100K"},{t:"Video / Film Production",time:"Degree or self-taught",sal:"$40K–$90K"}],
+   inds:["Tech Companies (in-house design)","Agencies","Media & Entertainment","Freelance / Creator Economy"],
+   remote:"One of the most remote-friendly fields. Most creative roles can be done entirely remotely.",
+   cert:"Portfolio > credentials here. A strong body of work beats any degree. Focus on building and showing real work.",
+   watch:"AI is disrupting entry-level creative work fast. Pair creative skills with strategy, UX thinking, or technical ability to stay differentiated.",
+   tags:["creative","design","media","remote_strong","solo","startup","freelance"]},
+  {id:"finance",title:"Finance, Data & Analytics",hl:"Numbers are your language — and it's a profitable one.",icon:"📈",color:"#1A3A2A",accent:"#2EA87A",accentBg:"rgba(46,168,122,0.08)",
+   summary:"Your analytical instincts and comfort with data point toward one of the highest-paying, most stable career families available. Finance and data sit at the intersection of business decisions and quantitative rigor.",
+   rem:4,inc:5,stab:4,
+   entries:[{t:"Financial Analyst",time:"Bachelor's degree (finance/accounting)",sal:"$60K–$100K"},{t:"Data Analyst",time:"Degree or self-taught + SQL/Python certs",sal:"$60K–$105K"},{t:"Investment Banking / Private Equity",time:"Top-tier degree + networking",sal:"$100K–$200K+"},{t:"Actuary",time:"Degree + exams (long path, high reward)",sal:"$80K–$150K+"}],
+   inds:["Banking & Financial Services","Corporate Finance (any industry)","Consulting","Fintech & Startups"],
+   remote:"Strong hybrid options. Data roles especially have moved heavily remote.",
+   cert:"CFA (finance), CPA (accounting), or data certs (Google Data Analytics, SQL) all add immediate value.",
+   watch:"Investment banking has brutal hours at the junior level. Corporate finance and data analytics offer similar earning power with far better lifestyle.",
+   tags:["finance","data","analytical","high_income","corporate","research"]},
+  {id:"ops",title:"Operations & Supply Chain",hl:"You make complex systems actually work.",icon:"🚚",color:"#2A1A4A",accent:"#8A6FD9",accentBg:"rgba(138,111,217,0.08)",
+   summary:"Operations and supply chain sit at the center of how every company delivers its product. It's analytical, cross-functional, and increasingly strategic — with strong comp and clear career progression.",
+   rem:3,inc:4,stab:5,
+   entries:[{t:"Supply Chain Analyst",time:"Bachelor's degree",sal:"$55K–$85K"},{t:"Operations Manager",time:"Degree + 2–4 yrs experience",sal:"$65K–$100K"},{t:"Procurement / Sourcing Manager",time:"Degree + certs (CSCP, CPM)",sal:"$70K–$110K"},{t:"Logistics Coordinator",time:"Degree or experience",sal:"$45K–$75K"}],
+   inds:["Manufacturing & Industrials","CPG & Retail","Healthcare Systems","Consulting","Tech Operations"],
+   remote:"Hybrid is common for analyst and manager roles. Director+ roles are often remote-eligible.",
+   cert:"APICS CSCP or CPIM certifications are the gold standard. Lean Six Sigma adds immediate value.",
+   watch:"Entry-level roles can feel transactional. Target companies where SCM is a strategic function, not just a cost center.",
+   tags:["ops","scm","management","analytical","corporate","stable"]},
+  {id:"social",title:"Social Services, Education & Public Sector",hl:"You want your work to mean something.",icon:"🌍",color:"#1A3A4A",accent:"#3A9FBF",accentBg:"rgba(58,159,191,0.08)",
+   summary:"If impact drives you more than income and you're drawn to systems that serve people, education, social work, and public service offer something most fields don't: the feeling that your work genuinely matters.",
+   rem:3,inc:2,stab:5,
+   entries:[{t:"Social Worker (BSW/MSW)",time:"Bachelor's or Master's degree",sal:"$40K–$70K"},{t:"Teacher / School Counselor",time:"Degree + state certification",sal:"$40K–$75K + pension"},{t:"Nonprofit Program Manager",time:"Degree + experience",sal:"$45K–$80K"},{t:"Government / Federal Employment",time:"Degree varies by role",sal:"$50K–$110K + full benefits"}],
+   inds:["K–12 and Higher Education","Nonprofits and NGOs","Federal / State Government","Community Organizations"],
+   remote:"Growing remote options — especially in program coordination, policy, and grant management roles.",
+   cert:"AmeriCorps or Teach For America are powerful 1–2 year entry points that build credentials and connections.",
+   watch:"Pay ceiling is real in most of these roles. The trade-off is stability, benefits, pension, and genuine mission.",
+   tags:["social_work","government","education","stable","fulfillment","avoid_unstable"]},
+  {id:"entrepreneur",title:"Entrepreneurship & Freelance",hl:"You don't want a job — you want to build something.",icon:"🚀",color:"#3A2A10",accent:"#D4A843",accentBg:"rgba(212,168,67,0.08)",
+   summary:"Your risk tolerance, independence, and desire to own your income point toward building something for yourself. Whether freelance, a small business, or a startup — you're building equity, not just earning a salary.",
+   rem:5,inc:4,stab:2,
+   entries:[{t:"Freelance Consultant / Contractor",time:"Build on existing expertise",sal:"$50K–$300K+ (variable)"},{t:"Agency / Service Business",time:"1–2 yrs to profitability",sal:"$60K–$500K+ (owner's draw)"},{t:"SaaS / Tech Startup",time:"2–5 yrs to meaningful revenue",sal:"Variable — high risk, high reward"},{t:"Trade Business Owner",time:"3–5 yrs journeyman → own shop",sal:"$80K–$200K+ running a crew"}],
+   inds:["Any — entrepreneurship is a vehicle, not an industry"],
+   remote:"Fully flexible — you set the terms.",
+   cert:"The best preparation is getting good at something valuable first, then packaging it. Execution > credentials.",
+   watch:"The income is real but so is the instability early on. Make sure your financial foundation is solid before going fully independent.",
+   tags:["startup","freelance","remote_strong","high_risk","avoid_inperson","avoid_unstable"]},
+  {id:"law",title:"Law, Policy & Government",hl:"You're drawn to systems — and changing them.",icon:"⚖️",color:"#2A2A1A",accent:"#8A8A3A",accentBg:"rgba(138,138,58,0.08)",
+   summary:"Law and policy attract people who are analytical, articulate, and interested in how power and systems actually work. A law degree opens doors in business, finance, politics, and beyond — not just courtrooms.",
+   rem:2,inc:4,stab:4,
+   entries:[{t:"Attorney / Lawyer",time:"3-yr law school (JD) after undergrad",sal:"$70K–$200K+"},{t:"Paralegal / Legal Assistant",time:"Certificate or degree, 1–2 yrs",sal:"$45K–$75K"},{t:"Policy Analyst",time:"Bachelor's or Master's in policy",sal:"$50K–$90K"},{t:"Compliance Officer",time:"Degree + industry certs",sal:"$60K–$110K"}],
+   inds:["Law Firms (BigLaw, boutique)","Corporate Legal Departments","Government & Regulatory Agencies","Nonprofits & Advocacy"],
+   remote:"Limited for courtroom work, growing for corporate legal and policy roles.",
+   cert:"LSAT prep is the critical first gate. Political internships and policy fellowships are the non-law alternative path.",
+   watch:"Law school is expensive and demanding. Be clear on why you want law specifically vs. policy, compliance, or business as alternatives.",
+   tags:["law","government","research","analytical","stable","corporate"]}
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let phase = 'intro'; // intro | quiz | results
+let qIdx = 0;
+let answers = Array.from({length: QUESTIONS.length}, () => []);
+let results = null;
+let openCard = 0;
+
+// ── SCORING ──────────────────────────────────────────────────────────────────
+function score() {
+  const tagCounts = {};
+  const avoidTags = [];
+  answers.forEach((sel, qi) => {
+    const q = QUESTIONS[qi];
+    sel.forEach(oi => {
+      (q.opts[oi].t || []).forEach(tag => {
+        if (tag.startsWith('avoid_')) avoidTags.push(tag);
+        else tagCounts[tag] = (tagCounts[tag]||0) + 1;
+      });
+    });
+  });
+  return PROFILES.map(p => {
+    let s = 0;
+    p.tags.forEach(tag => { s += (tagCounts[tag]||0) * 2; });
+    if (avoidTags.includes('avoid_desk') && ['finance','consulting'].includes(p.id)) s -= 4;
+    if (avoidTags.includes('avoid_physical') && p.id === 'trades') s -= 6;
+    if (avoidTags.includes('avoid_degree') && ['law','healthcare'].includes(p.id)) s -= 4;
+    if (avoidTags.includes('avoid_inperson') && ['trades','healthcare'].includes(p.id)) s -= 3;
+    if (avoidTags.includes('avoid_unstable') && ['entrepreneur','creative'].includes(p.id)) s -= 4;
+    if (avoidTags.includes('avoid_routine') && ['ops','finance'].includes(p.id)) s -= 2;
+    const max = p.tags.length * 2 * 3;
+    return {...p, pct: Math.min(Math.max(Math.round((s/max)*100), 22), 97)};
+  }).sort((a,b) => b.pct - a.pct);
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function dots(val, color) {
+  return Array.from({length:5}, (_,i) =>
+    `<div class="score-dot" style="background:${i < val ? color : 'var(--border)'}"></div>`
+  ).join('');
+}
+
+function renderIntro() {
+  return `
+    <div class="intro">
+      <div class="intro-eye">LIFEPATH · CAREER QUIZ</div>
+      <h1 class="intro-h1">What career<br>were you<br>built for?</h1>
+      <div class="intro-bar"></div>
+      <p class="intro-p">14 questions. Every age, every background, every starting point. Your results include specific roles, entry paths, salary ranges, and remote work options.</p>
+      <div class="tag-row">
+        <span class="tag">High school students</span>
+        <span class="tag">College students</span>
+        <span class="tag">Career changers</span>
+        <span class="tag">Working professionals</span>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">BEGIN THE QUIZ →</button>
+      <div class="intro-note">14 questions · ~5 minutes · Free</div>
+    </div>`;
+}
+
+function renderProgress() {
+  const q = QUESTIONS[qIdx];
+  const segs = QUESTIONS.map((_,i) => {
+    const cls = i < qIdx ? 'done' : i === qIdx ? 'active' : '';
+    return `<div class="progress-seg ${cls}" style="flex:${i===qIdx?3:1}"></div>`;
+  }).join('');
+  return `<div class="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-cat">${q.cat.toUpperCase()}</span>
+      <span class="progress-num">${q.num} / ${QUESTIONS.length}</span>
+    </div>
+    <div class="progress-bar">${segs}</div>
+  </div>`;
+}
+
+function renderQuiz() {
+  const q = QUESTIONS[qIdx];
+  const sel = answers[qIdx];
+  const isMulti = q.type === 'multi';
+  const max = q.max || 99;
+  const optHtml = q.opts.map((opt, i) => {
+    const isOn = sel.includes(i);
+    const isDisabled = isMulti && !isOn && sel.length >= max;
+    const checkCls = isMulti ? 'multi' : '';
+    return `<button class="opt ${isOn?'selected':''} ${isDisabled?'disabled':''}" onclick="toggleOpt(${i})" ${isDisabled?'disabled':''}>
+      <span class="opt-icon">${opt.i}</span>
+      <span class="opt-label">${opt.l}</span>
+      <div class="opt-check ${checkCls}">${isOn?'✓':''}</div>
+    </button>`;
+  }).join('');
+  const instrText = isMulti
+    ? `${q.type === 'multi' ? 'Select up to' : 'Choose one'} ${max} <span class="q-sel-count">· ${sel.length}/${max} selected</span>`
+    : 'Choose one';
+  return `
+    <div class="quiz-wrap">
+      ${renderProgress()}
+      <div class="q-dot-row"><div class="q-dot"></div><span class="q-label">QUESTION ${q.num} OF ${QUESTIONS.length}</span></div>
+      <h2 class="q-text">${q.q}</h2>
+      <p class="q-instr">${instrText}</p>
+      <div class="opts">${optHtml}</div>
+    </div>
+    <div class="bottom-nav">
+      <button class="btn-back ${qIdx===0?'hidden':''}" onclick="goBack()">← Back</button>
+      <span class="nav-sel">${sel.length > 0 ? sel.length + ' selected' : 'select to continue'}</span>
+      <button class="btn-next ${sel.length===0?'disabled':''}" onclick="goNext()" ${sel.length===0?'disabled':''}>
+        ${qIdx+1 === QUESTIONS.length ? 'SEE RESULTS →' : 'NEXT →'}
+      </button>
+    </div>`;
+}
+
+function renderCard(p, rank) {
+  const isOpen = openCard === rank;
+  const medals = ['🎯','✅','📋'];
+  const entriesHtml = p.entries.map((e,i) => `
+    <div class="entry-row" style="background:${i%2===0?'var(--surface)':'transparent'}">
+      <div class="entry-top">
+        <span class="entry-title">${e.t}</span>
+        <span class="entry-sal" style="color:${p.accent}">${e.sal}</span>
+      </div>
+      <div class="entry-time">${e.time}</div>
+    </div>`).join('');
+  const indsHtml = p.inds.map(ind =>
+    `<span class="ind-tag" style="color:${p.accent};border:1px solid ${p.color}30">${ind}</span>`
+  ).join('');
+  return `
+    <div class="r-card ${isOpen?'open':''}" style="border-color:${isOpen?p.color+'70':'var(--border)'}">
+      <button class="r-header" onclick="toggleCard(${rank})">
+        <div class="r-icon" style="background:${p.accentBg};border:1px solid ${p.color}30">${p.icon}</div>
+        <div class="r-info">
+          <div class="r-badges">
+            ${rank < 3 ? `<span style="font-size:14px">${medals[rank]}</span>` : ''}
+            ${rank === 0 ? `<span class="r-badge" style="color:${p.accent};border:1px solid ${p.accent}">BEST FIT</span>` : ''}
+          </div>
+          <div class="r-title">${p.title}</div>
+          <div class="r-hl">${p.hl}</div>
+        </div>
+        <div class="r-score-wrap">
+          <div class="r-score" style="color:${p.accent}">${p.pct}%</div>
+          <div class="r-score-lbl">match</div>
+        </div>
+        <span class="r-toggle">${isOpen?'▲':'▼'}</span>
+      </button>
+      ${isOpen ? `
+      <div class="r-body">
+        <p class="r-summary" style="border-color:${p.color}">${p.summary}</p>
+        <div class="section-lbl">At a glance</div>
+        <div class="scores-grid">
+          ${[['Remote Friendly',p.rem],['Income Potential',p.inc],['Job Stability',p.stab]].map(([lbl,val]) => `
+            <div class="score-row">
+              <span class="score-lbl">${lbl}</span>
+              <div class="score-dots">${dots(val, p.accent)}</div>
+            </div>`).join('')}
+        </div>
+        <div class="section-lbl">Ways In</div>
+        ${entriesHtml}
+        <div style="height:16px"></div>
+        <div class="section-lbl">Industries to Target</div>
+        <div class="industry-tags">${indsHtml}</div>
+        <div class="two-col">
+          <div class="info-box">
+            <div class="info-box-lbl">🌐 Remote Work</div>
+            <div class="info-box-val">${p.remote}</div>
+          </div>
+          <div class="info-box">
+            <div class="info-box-lbl">🎯 Fast Entry Path</div>
+            <div class="info-box-val">${p.cert}</div>
+          </div>
+        </div>
+        <div class="watch-box" style="background:${p.accentBg};border:1px solid ${p.color}22">
+          <span class="watch-kw" style="color:${p.accent}">WATCH OUT  </span>
+          <span class="watch-txt">${p.watch}</span>
+        </div>
+      </div>` : ''}
+    </div>`;
+}
+
+function renderResults() {
+  const top3 = results.slice(0,3);
+  const others = results.slice(3,7);
+  const othersHtml = others.map(p => `
+    <div class="other-chip">
+      <span style="font-size:16px">${p.icon}</span>
+      <div>
+        <div class="other-name">${p.title}</div>
+        <div class="other-pct">${p.pct}% match</div>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="results-wrap">
+      <div class="results-eye">YOUR RESULTS</div>
+      <h2 class="results-h">Your career matches</h2>
+      <p class="results-sub">Ranked by how well each field matches your strengths, interests, and preferences. Tap any card to see the full breakdown.</p>
+      ${top3.map((p,i) => renderCard(p,i)).join('')}
+      <div class="others-lbl">Also worth exploring</div>
+      <div class="others-grid">${othersHtml}</div>
+      <button class="btn-retake" onclick="restart()">↩ Retake Quiz</button>
+    </div>`;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (phase === 'intro') app.innerHTML = renderIntro();
+  else if (phase === 'quiz') app.innerHTML = renderQuiz();
+  else app.innerHTML = renderResults();
+  window.scrollTo(0, 0);
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────────
+function startQuiz() { phase = 'quiz'; qIdx = 0; render(); }
+function goBack() { if (qIdx > 0) { qIdx--; render(); } }
+function goNext() {
+  const sel = answers[qIdx];
+  if (sel.length === 0) return;
+  if (qIdx + 1 >= QUESTIONS.length) {
+    results = score();
+    phase = 'results';
+  } else { qIdx++; }
+  render();
+}
+function toggleOpt(i) {
+  const q = QUESTIONS[qIdx];
+  const sel = answers[qIdx];
+  const isMulti = q.type === 'multi';
+  if (!isMulti) { answers[qIdx] = sel.includes(i) ? [] : [i]; }
+  else {
+    if (sel.includes(i)) answers[qIdx] = sel.filter(x => x !== i);
+    else if (sel.length < (q.max||99)) answers[qIdx] = [...sel, i];
+  }
+  render();
+}
+function toggleCard(rank) { openCard = openCard === rank ? -1 : rank; render(); }
+function restart() {
+  phase = 'intro'; qIdx = 0; openCard = 0;
+  answers = Array.from({length: QUESTIONS.length}, () => []);
+  results = null;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

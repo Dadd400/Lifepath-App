@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Global City Finder · LifePath</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060C14;--surface:#0E1520;--card:#131D2A;--border:#182030;--borderB:#263040;
+  --text:#E8EEF4;--textM:#5A7080;--textD:#1A2A3A;
+  --accent:#5AAFD4;--accentD:#3A8FB4;--accentBg:rgba(90,175,212,0.08);
+  --gold:#D4A843;--green:#4CAF82;--coral:#E87A6F;
+  --ff:'Abril Fatface',Georgia,serif;
+  --sans:'Outfit',sans-serif;
+  --mono:'Space Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.nav-logo{font-size:16px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none}
+.intro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 60px}
+.intro-eye{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.3em;margin-bottom:16px;text-transform:uppercase}
+.intro-h{font-family:var(--ff);font-size:clamp(48px,10vw,80px);color:var(--text);line-height:0.95;letter-spacing:-0.02em;margin-bottom:4px}
+.intro-h span{color:var(--accent)}
+.intro-p{font-size:16px;color:var(--textM);line-height:1.8;max-width:480px;margin:24px 0 28px}
+.factor-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:40px}
+.factor-pill{font-size:11px;font-family:var(--mono);color:var(--textM);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+.btn-start{background:var(--accent);color:var(--bg);border:none;padding:15px 40px;border-radius:30px;font-size:14px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.08em;box-shadow:0 8px 32px rgba(90,175,212,0.4)}
+.intro-note{margin-top:14px;font-size:11px;color:var(--textD);font-family:var(--mono)}
+.progress-wrap{margin-bottom:24px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:8px}
+.progress-cat{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.2em;text-transform:uppercase}
+.progress-num{font-size:10px;font-family:var(--mono);color:var(--textD)}
+.progress-bar{display:flex;gap:3px}
+.progress-seg{height:2px;border-radius:1px;background:var(--border);transition:all 0.3s}
+.progress-seg.done,.progress-seg.active{background:var(--accent)}
+.progress-seg.active{flex:4}
+.quiz-wrap{padding-top:80px;padding-bottom:120px}
+.q-meta{display:flex;justify-content:space-between;margin-bottom:12px}
+.q-cat{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.2em;text-transform:uppercase}
+.q-num{font-size:10px;font-family:var(--mono);color:var(--textD)}
+.q-text{font-family:var(--ff);font-size:clamp(20px,4vw,28px);color:var(--text);margin-bottom:6px;line-height:1.2}
+.q-instr{font-size:11px;color:var(--textD);font-family:var(--mono);margin-bottom:20px}
+.q-sel{color:var(--accent)}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.opt{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;font-family:var(--sans)}
+.opt:hover{border-color:var(--borderB)}
+.opt.selected{background:var(--accentBg);border-color:rgba(90,175,212,0.5)}
+.opt-icon{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.opt-label{font-size:14px;color:var(--text);flex:1;line-height:1.4}
+.opt-sub{font-size:11px;color:var(--textM);margin-top:2px}
+.opt.selected .opt-label{color:var(--accent)}
+.opt-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--bg);transition:all 0.15s}
+.opt-check.multi{border-radius:4px}
+.opt.selected .opt-check{background:var(--accent);border-color:var(--accent)}
+.opt.disabled{opacity:0.35;cursor:not-allowed}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(6,12,20,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:14px 20px 24px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.btn-back{background:none;border:1px solid var(--border);color:var(--textM);font-family:var(--mono);font-size:12px;cursor:pointer;padding:9px 18px;border-radius:20px}
+.btn-back.hidden{opacity:0;pointer-events:none}
+.nav-sel{font-size:11px;color:var(--textD);font-family:var(--mono)}
+.btn-next{background:var(--accent);border:none;color:var(--bg);padding:10px 24px;border-radius:20px;font-size:13px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em}
+.btn-next.disabled{background:var(--border);color:var(--textD);cursor:default}
+.results-wrap{padding-top:80px;padding-bottom:60px}
+.results-eye{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.3em;margin-bottom:12px;text-transform:uppercase}
+.results-h{font-family:var(--ff);font-size:clamp(36px,7vw,56px);color:var(--text);margin-bottom:14px;line-height:1}
+.results-sub{font-size:14px;color:var(--textM);line-height:1.7;margin-bottom:28px}
+.r-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:10px;transition:all 0.25s}
+.r-header{width:100%;background:none;border:none;cursor:pointer;padding:18px 22px;text-align:left;display:flex;align-items:center;gap:14px;font-family:var(--sans)}
+.r-emoji-wrap{width:52px;height:52px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.r-info{flex:1;min-width:0}
+.r-flag{font-size:17px;font-weight:600;color:var(--text);margin-bottom:2px}
+.r-tag{font-size:11px;color:var(--textM);font-family:var(--mono)}
+.r-vibes{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.r-vibe{font-size:9px;font-family:var(--mono);border-radius:8px;padding:2px 7px;letter-spacing:0.08em}
+.r-score-wrap{text-align:right;flex-shrink:0}
+.r-score{font-size:28px;font-weight:700;font-family:var(--mono);line-height:1}
+.r-score-lbl{font-size:9px;color:var(--textD);font-family:var(--mono)}
+.r-toggle{color:var(--textD);font-size:12px;margin-left:4px}
+.r-body{padding:4px 22px 24px;border-top:1px solid var(--border)}
+.section-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.15em;color:var(--textD);margin-bottom:10px;text-transform:uppercase}
+.scores-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;background:var(--surface);border-radius:10px;padding:16px;margin-bottom:20px}
+.score-row{display:flex;justify-content:space-between;align-items:center}
+.score-lbl{font-size:11px;color:var(--textM);font-family:var(--mono)}
+.score-dots{display:flex;gap:3px}
+.score-dot{width:8px;height:8px;border-radius:50%}
+.highlights-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.hl-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.hl-text{font-size:12px;color:var(--textM);line-height:1.5}
+.hl-col-title{font-size:9px;font-family:var(--mono);letter-spacing:0.15em;color:var(--textD);margin-bottom:10px;text-transform:uppercase}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.info-box{background:var(--surface);border-radius:10px;padding:12px 14px}
+.info-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.12em;color:var(--textD);margin-bottom:5px;text-transform:uppercase}
+.info-val{font-size:12px;color:var(--textM);line-height:1.5}
+.black-box{border-radius:10px;padding:12px 16px;margin-bottom:14px}
+.nbhd-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.nbhd-tag{font-size:11px;font-family:var(--mono);padding:4px 11px;border-radius:20px}
+.others-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.2em;color:var(--textD);margin-bottom:10px;text-transform:uppercase}
+.others-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.other-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.other-name{font-size:13px;color:var(--text);font-weight:500}
+.other-pct{font-size:10px;font-family:var(--mono);color:var(--textD)}
+.btn-retake{background:none;border:1px solid var(--border);color:var(--textM);font-size:12px;font-family:var(--mono);cursor:pointer;padding:10px 24px;border-radius:20px;letter-spacing:0.08em}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="/">✦ LifePath</a>
+  <a class="nav-back" href="/">← Back</a>
+</nav>
+<div class="wrap" id="app"></div>
+<script>
+const QUESTIONS=[
+  {id:"budget",num:1,cat:"About You",q:"What's your realistic monthly budget for rent?",type:"single",
+   opts:[{l:"Under $800/mo — I want to stretch my money far",i:"💚",t:["cost_high"],sub:""},{l:"$800–$1,400/mo — comfortable but value-conscious",i:"💛",t:["cost_mid"],sub:""},{l:"$1,400–$2,000/mo — willing to pay for quality of life",i:"🟠",t:["cost_low"],sub:""},{l:"$2,000–$3,000/mo — cost is secondary to experience",i:"🔴",t:[],sub:""},{l:"$3,000+/mo — I want the best",i:"💎",t:[],sub:""}]},
+  {id:"income",num:2,cat:"About You",q:"What's your income situation?",type:"multi",max:3,
+   opts:[{l:"Remote work — I earn in USD and can work from anywhere",i:"🌐",t:["remote","cost_bonus"],sub:""},{l:"I need to find a job locally in the new city",i:"💼",t:["jobs_strong"],sub:""},{l:"I run a business or have passive income",i:"🏦",t:["remote"],sub:""},{l:"I'm in supply chain / ops — I need a strong corporate job market",i:"🚚",t:["jobs_strong","jobs_ops"],sub:""},{l:"I'm open to consulting or contract work internationally",i:"🤝",t:["remote","jobs_strong"],sub:""}]},
+  {id:"culture",num:3,cat:"Community",q:"How important is a strong Black community and diaspora presence?",type:"multi",max:4,
+   opts:[{l:"I want to live somewhere with a large Black population",i:"✊",t:["black_large"],sub:""},{l:"African diaspora community — reconnecting with roots matters to me",i:"🌍",t:["black_roots","diaspora"],sub:""},{l:"Black-owned businesses, arts, music, and cultural life",i:"🎵",t:["black_culture"],sub:""},{l:"Pan-African identity — I want to live on the continent or close to it",i:"🌍",t:["africa","black_large"],sub:""},{l:"It's a plus but I'm open to diverse international cities",i:"🌐",t:["diverse"],sub:""},{l:"Not a major factor for me in choosing a location",i:"➡️",t:[],sub:""}]},
+  {id:"climate",num:4,cat:"Lifestyle",q:"What kind of climate do you want to live in?",type:"multi",max:3,
+   opts:[{l:"Warm and sunny year-round — I'm done with cold",i:"☀️",t:["warm"]},{l:"Mediterranean — warm dry summers, mild winters",i:"🌤️",t:["warm","mild"]},{l:"Tropical — heat and humidity is fine with me",i:"🌴",t:["warm","tropical"]},{l:"Eternal spring — 65-75F always, no extremes",i:"🌸",t:["mild","spring"]},{l:"Four distinct seasons — I like variety",i:"🍂",t:["seasons"]},{l:"I can handle cold if everything else is great",i:"🧥",t:[]}]},
+  {id:"language",num:5,cat:"Practicalities",q:"How do you feel about learning a new language?",type:"single",
+   opts:[{l:"English only — I need to get by without learning another language",i:"🇬🇧",t:["english_must"]},{l:"I'm open to basics but want English widely available",i:"💬",t:["english_pref"]},{l:"I'm willing to learn — I'd pick up Spanish or Portuguese",i:"📚",t:["latin_ok"]},{l:"I'm excited to fully immerse in a new language",i:"🌐",t:[]}]},
+  {id:"visa",num:6,cat:"Practicalities",q:"What's your visa situation?",type:"multi",max:3,
+   opts:[{l:"I want somewhere I can move easily with minimal paperwork",i:"✅",t:["visa_easy"]},{l:"I'm looking for a path to permanent residency or citizenship",i:"🏛️",t:["visa_pr"]},{l:"Digital nomad visa — I want a legal way to stay 1+ years",i:"💻",t:["visa_nomad","remote"]},{l:"I have African heritage and want Right of Abode options",i:"🌍",t:["africa","visa_easy","black_roots"]},{l:"I'm willing to go through a more complex visa process for the right city",i:"📋",t:[]}]},
+  {id:"walkability",num:7,cat:"Day to Day",q:"How do you want to get around day to day?",type:"multi",max:3,
+   opts:[{l:"Walk everywhere — I want to be car-free",i:"🚶",t:["walkable","transit"]},{l:"Strong metro / public transit system",i:"🚇",t:["transit"]},{l:"I'll drive — walkability isn't a priority",i:"🚗",t:[]},{l:"I love cities built for cyclists",i:"🚲",t:["walkable"]},{l:"A mix — walkable neighborhood but I'll have a car",i:"⚖️",t:["walkable"]}]},
+  {id:"safety",num:8,cat:"Day to Day",q:"How much does personal safety factor into your decision?",type:"single",
+   opts:[{l:"Top priority — I won't compromise on safety",i:"🛡️",t:["safety_high"]},{l:"Important but I'll accept some risk for the right lifestyle",i:"⚖️",t:["safety_mid"]},{l:"I'm aware of risk and can navigate it — I've lived in big cities before",i:"🌆",t:[]},{l:"Not a dealbreaker — I'm street-smart and adaptable",i:"💪",t:[]}]},
+  {id:"healthcare",num:9,cat:"Wellbeing",q:"How important is access to quality healthcare?",type:"multi",max:3,
+   opts:[{l:"World-class healthcare is non-negotiable",i:"🏥",t:["healthcare_high"]},{l:"Affordable private healthcare is fine",i:"💊",t:["healthcare_mid"]},{l:"I want a country with a public healthcare system",i:"🏛️",t:["healthcare_mid"]},{l:"I'll carry international health insurance — flexibility matters more",i:"📋",t:[]},{l:"Not a major concern for me right now",i:"✌️",t:[]}]},
+  {id:"social",num:10,cat:"Lifestyle",q:"What does your ideal social life look like?",type:"multi",max:3,
+   opts:[{l:"Thriving nightlife — rooftop bars, clubs, late nights",i:"🌃",t:["nightlife"]},{l:"World-class food and restaurant culture",i:"🍽️",t:["food"]},{l:"Live music, Afrobeats, reggae, and Black cultural events",i:"🎵",t:["black_culture","nightlife"]},{l:"Arts, galleries, fashion, and creative scenes",i:"🎨",t:["arts","nightlife"]},{l:"Chill coffee shop, coworking, digital nomad culture",i:"☕",t:["remote","nomad"]},{l:"I want a strong expat social community",i:"🤝",t:["expat"]}]},
+  {id:"nature",num:11,cat:"Lifestyle",q:"How much does access to nature and outdoors matter?",type:"multi",max:3,
+   opts:[{l:"Beach access — ocean living is important to me",i:"🏖️",t:["beach"]},{l:"Mountains, hiking, and dramatic landscapes",i:"🏔️",t:["outdoor"]},{l:"Safari, wildlife, and raw natural experiences",i:"🦁",t:["africa","outdoor"]},{l:"Parks and green space within the city",i:"🌿",t:["outdoor"]},{l:"I want a base for travel — a well-connected hub",i:"✈️",t:["airport","expat"]},{l:"Nature is nice but not a deciding factor",i:"🏙️",t:[]}]},
+  {id:"pace",num:12,cat:"Vibe",q:"What pace of life are you looking for?",type:"single",
+   opts:[{l:"Fast, ambitious, and electric — I thrive in hustle energy",i:"⚡",t:["fast"]},{l:"Balanced — productive days, lively evenings, real downtime",i:"⚖️",t:["balanced"]},{l:"Slow and intentional — I want to decompress and live fully",i:"🧘",t:["slow"]},{l:"Deeply relaxed — I want a place that slows me down on purpose",i:"🌊",t:["slow","beach"]}]},
+  {id:"region",num:13,cat:"Region",q:"Are there regions of the world you're drawn to?",type:"multi",max:4,
+   opts:[{l:"Africa — I'm interested in living on the continent",i:"🌍",t:["africa"]},{l:"Europe — I want the European lifestyle",i:"🇪🇺",t:["europe"]},{l:"Latin America — warmth, culture, and affordability",i:"🌮",t:["latin"]},{l:"Southeast Asia — adventure and extreme affordability",i:"🌴",t:["asia"]},{l:"Middle East — ambitious cities and tax-free income",i:"🏙️",t:["middle_east"]},{l:"I'm open to anywhere — show me what fits",i:"🌐",t:[]}]},
+  {id:"dealbreakers",num:14,cat:"Dealbreakers",q:"Which of these would make a city an automatic no?",type:"multi",max:6,
+   opts:[{l:"Too expensive — I can't build real purchasing power",i:"💸",t:["avoid_expensive"]},{l:"Cold or grey weather",i:"🥶",t:["avoid_cold"]},{l:"Very small Black community — I'd feel isolated",i:"😔",t:["avoid_no_black"]},{l:"Language barrier — English not widely spoken",i:"🗣️",t:["avoid_no_english"]},{l:"Hard to get a visa or legal long-term stay",i:"📋",t:["avoid_hard_visa"]},{l:"Poor healthcare infrastructure",i:"🏥",t:["avoid_no_health"]},{l:"High crime or safety concerns",i:"⚠️",t:["avoid_unsafe"]},{l:"Fully car-dependent with no transit",i:"🚗",t:["avoid_no_transit"]}]},
+  {id:"must_have",num:15,cat:"Must Have",q:"What's your single non-negotiable?",type:"multi",max:2,
+   opts:[{l:"Warm weather — sunshine is essential to my mental health",i:"☀️",t:["warm","warm","warm"]},{l:"Strong Black community — cultural belonging matters most",i:"✊",t:["black_large","black_culture","black_large"]},{l:"Affordability — I want maximum purchasing power",i:"💵",t:["cost_high","cost_high","cost_high"]},{l:"Safety — I won't compromise on this",i:"🛡️",t:["safety_high","safety_high"]},{l:"Career opportunity — job market is the priority",i:"📈",t:["jobs_strong","jobs_strong","jobs_strong"]},{l:"Freedom — easy visa, easy lifestyle, minimal friction",i:"🗺️",t:["visa_easy","visa_easy","visa_nomad"]},{l:"Nature — I want to live somewhere breathtakingly beautiful",i:"🌿",t:["outdoor","outdoor","beach"]},{l:"Culture — world-class food, arts, nightlife, energy",i:"🎭",t:["nightlife","food","arts","nightlife"]}]}
+];
+
+const CITIES=[
+  {id:"lisbon",name:"Lisbon, Portugal",flag:"🇵🇹",region:"Europe",tagline:"Slow Luxury",color:"#C86A2A",colorBg:"rgba(200,106,42,0.1)",
+   scores:{cost:4,black_culture:2,black_large:1,diaspora:2,diverse:4,walkable:4,transit:4,warm:4,mild:4,seasons:2,safety:5,healthcare:4,nightlife:3,food:4,arts:4,jobs_strong:3,jobs_ops:2,expat:5,english_ok:4,visa_easy:5,visa_pr:3,visa_nomad:4,beach:3,outdoor:4,airport:4,africa_close:3,fast:2,balanced:4,slow:4},
+   rent:"$1,200-$1,800/mo",blackPop:"Small but growing Afro-Portuguese community",
+   highlights:["Golden Visa / D7 visa very accessible","English widely spoken","Year-round sunshine and mild weather","Thriving expat community","Direct flights to Africa and US"],
+   cons:["Wages low if working locally","Rapidly gentrifying","Small Black community","Bureaucracy can be slow"],
+   climate:"Mediterranean — warm sunny summers, mild rainy winters",visa:"Very Easy — D7 passive income visa, NHR tax regime",costNote:"~40% cheaper than Western Europe average",
+   nbhds:["Mouraria","Alfama","Principe Real","Intendente"],vibes:["Slow","Sunny","Cosmopolitan","Affordable"]},
+  {id:"mexico_city",name:"Mexico City, Mexico",flag:"🇲🇽",region:"Latin America",tagline:"Creative Capital",color:"#2A8A4A",colorBg:"rgba(42,138,74,0.1)",
+   scores:{cost:5,black_culture:3,black_large:2,diaspora:2,diverse:4,walkable:5,transit:4,warm:4,mild:4,seasons:1,safety:3,healthcare:4,nightlife:5,food:5,arts:4,jobs_strong:4,jobs_ops:3,expat:5,english_ok:3,visa_easy:5,visa_pr:2,visa_nomad:4,beach:0,outdoor:3,airport:5,africa_close:0,fast:4,balanced:4,slow:2},
+   rent:"$800-$1,400/mo",blackPop:"Afro-Mexican community + growing Black American expat scene",
+   highlights:["No visa needed for most nationalities","World-class food and arts scene","Fully walkable neighborhoods","Remote work hub","Rich Afro-Latino culture"],
+   cons:["Air quality issues","Earthquake risk","Safety varies by neighborhood","Spanish essential for deep integration"],
+   climate:"Eternal spring — 60-75F year round, rainy season June-Oct",visa:"Very Easy — tourist visa, digital nomad visa available",costNote:"~60% cheaper than US major cities",
+   nbhds:["Roma Norte","Condesa","Juarez","Coyoacan"],vibes:["Creative","Walkable","Vibrant","Affordable"]},
+  {id:"accra",name:"Accra, Ghana",flag:"🇬🇭",region:"West Africa",tagline:"Diaspora Homecoming",color:"#C8A820",colorBg:"rgba(200,168,32,0.1)",
+   scores:{cost:5,black_culture:5,black_large:5,diaspora:5,diverse:5,walkable:2,transit:2,warm:4,mild:2,seasons:1,safety:4,healthcare:2,nightlife:4,food:4,arts:4,jobs_strong:3,jobs_ops:3,expat:4,english_ok:5,visa_easy:5,visa_pr:4,visa_nomad:3,beach:3,outdoor:3,airport:4,africa_close:5,fast:3,balanced:3,slow:3},
+   rent:"$500-$1,200/mo",blackPop:"~100% Black population — Pan-African cultural capital",
+   highlights:["Right of Abode for African diaspora","Year of Return movement","English official language","Strong Black American expat community","Deep cultural roots"],
+   cons:["Infrastructure gaps","Power outages (load shedding)","Limited elite healthcare","Traffic is severe"],
+   climate:"Tropical — hot year round, two rainy seasons, humid coastal",visa:"Very Easy — Right of Abode for diaspora",costNote:"~70% cheaper than US if earning in USD",
+   nbhds:["East Legon","Cantonments","Labone","Osu"],vibes:["Homeland","Community","Cultural","Affordable"]},
+  {id:"dubai",name:"Dubai, UAE",flag:"🇦🇪",region:"Middle East",tagline:"Ambition and Opulence",color:"#8A6A20",colorBg:"rgba(138,106,32,0.1)",
+   scores:{cost:3,black_culture:3,black_large:2,diaspora:3,diverse:5,walkable:3,transit:4,warm:4,mild:2,seasons:1,safety:5,healthcare:5,nightlife:4,food:5,arts:3,jobs_strong:5,jobs_ops:4,expat:5,english_ok:5,visa_easy:3,visa_pr:1,visa_nomad:3,beach:4,outdoor:2,airport:5,africa_close:4,fast:5,balanced:4,slow:1},
+   rent:"$1,500-$2,500/mo",blackPop:"Highly diverse expat city — significant African and Caribbean diaspora",
+   highlights:["Zero income tax","World-class infrastructure","Very safe","Global business hub","Large diverse expat community"],
+   cons:["Extreme summer heat (110F+)","Conservative laws","Very car-dependent","No path to permanent residency"],
+   climate:"Desert — extremely hot summers, perfect Oct-Apr",visa:"Moderate — employment or investor visa needed",costNote:"Tax-free income offsets higher rents",
+   nbhds:["Dubai Marina","JVC","Downtown","Jumeirah"],vibes:["Ambitious","Luxurious","Global","Safe"]},
+  {id:"nairobi",name:"Nairobi, Kenya",flag:"🇰🇪",region:"East Africa",tagline:"Safari Meets Startup",color:"#2A6A3A",colorBg:"rgba(42,106,58,0.1)",
+   scores:{cost:5,black_culture:5,black_large:5,diaspora:4,diverse:5,walkable:2,transit:2,warm:4,mild:5,seasons:1,safety:3,healthcare:3,nightlife:4,food:4,arts:3,jobs_strong:4,jobs_ops:3,expat:4,english_ok:5,visa_easy:4,visa_pr:2,visa_nomad:3,beach:0,outdoor:5,airport:4,africa_close:5,fast:3,balanced:4,slow:3},
+   rent:"$400-$1,000/mo",blackPop:"~99% Black — East Africa's tech and innovation capital",
+   highlights:["Silicon Savannah tech hub","English official language","Gateway to incredible nature","Strong NGO and startup ecosystem","Year-round perfect weather"],
+   cons:["Traffic among worst globally","Infrastructure inconsistent","Some security concerns","Political instability cycles"],
+   climate:"Perfect — 65-80F year round, two short rainy seasons",visa:"Easy — e-visa on arrival for most",costNote:"~75% cheaper than US if earning in USD",
+   nbhds:["Westlands","Kilimani","Karen","Lavington"],vibes:["Tech","Nature","Community","Affordable"]},
+  {id:"london",name:"London, UK",flag:"🇬🇧",region:"Europe",tagline:"World City",color:"#2A3A8A",colorBg:"rgba(42,58,138,0.1)",
+   scores:{cost:1,black_culture:4,black_large:4,diaspora:4,diverse:5,walkable:5,transit:5,warm:2,mild:2,seasons:3,safety:4,healthcare:5,nightlife:5,food:5,arts:5,jobs_strong:5,jobs_ops:4,expat:5,english_ok:5,visa_easy:2,visa_pr:3,visa_nomad:2,beach:0,outdoor:3,airport:5,africa_close:2,fast:5,balanced:4,slow:1},
+   rent:"$2,200-$3,500/mo",blackPop:"~13% — vibrant Black British, African and Caribbean communities",
+   highlights:["World-class Black cultural scene","Excellent public transit","NHS free healthcare","Global finance and tech hub","Rich Caribbean and African diaspora"],
+   cons:["Extremely expensive","Visa very hard post-Brexit","Gloomy weather","Housing crisis"],
+   climate:"Temperate — mild but grey and rainy, rarely extreme",visa:"Difficult — work visa sponsorship required post-Brexit",costNote:"One of the most expensive cities in the world",
+   nbhds:["Brixton","Peckham","Hackney","Tottenham"],vibes:["World-Class","Cultural","Connected","Gritty"]},
+  {id:"medellin",name:"Medellin, Colombia",flag:"🇨🇴",region:"Latin America",tagline:"Eternal Spring",color:"#6A2A8A",colorBg:"rgba(106,42,138,0.1)",
+   scores:{cost:5,black_culture:3,black_large:2,diaspora:2,diverse:4,walkable:4,transit:4,warm:4,mild:5,seasons:1,safety:3,healthcare:4,nightlife:5,food:4,arts:3,jobs_strong:3,jobs_ops:2,expat:5,english_ok:2,visa_easy:5,visa_pr:3,visa_nomad:5,beach:0,outdoor:5,airport:4,africa_close:0,fast:4,balanced:5,slow:3},
+   rent:"$600-$1,100/mo",blackPop:"Afro-Colombian communities + growing international expat scene",
+   highlights:["Eternal spring climate (72F year round)","Booming digital nomad hub","Stunning mountain scenery","Incredible food and nightlife","Affordable world-class healthcare"],
+   cons:["Spanish essential","Cartel history / lingering safety concerns","Limited Black expat community","Altitude takes adjustment (5,000ft)"],
+   climate:"Perfect year-round — 68-76F, lush green, occasional rain",visa:"Very Easy — tourist visa extendable, digital nomad visa available",costNote:"~65% cheaper than US major cities",
+   nbhds:["El Poblado","Laureles","Envigado","Sabaneta"],vibes:["Eternal Spring","Nomad Hub","Affordable","Beautiful"]},
+  {id:"toronto",name:"Toronto, Canada",flag:"🇨🇦",region:"North America",tagline:"Multicultural Excellence",color:"#8A2A2A",colorBg:"rgba(138,42,42,0.1)",
+   scores:{cost:2,black_culture:5,black_large:4,diaspora:4,diverse:5,walkable:4,transit:4,warm:2,mild:1,seasons:4,safety:5,healthcare:5,nightlife:4,food:5,arts:4,jobs_strong:5,jobs_ops:4,expat:5,english_ok:5,visa_easy:3,visa_pr:5,visa_nomad:3,beach:0,outdoor:4,airport:5,africa_close:0,fast:4,balanced:4,slow:2},
+   rent:"$1,800-$2,800/mo",blackPop:"~9% Black — one of the most diverse cities on earth",
+   highlights:["Thriving Caribbean and African communities","Universal healthcare","Very safe and multicultural","Strong job market","Path to permanent residency and citizenship"],
+   cons:["Harsh winters","Very expensive housing","Visa process competitive","High taxes"],
+   climate:"4 seasons — beautiful summers, brutal cold winters",visa:"Moderate — Express Entry or Provincial Nominee Program",costNote:"Expensive but cheaper than comparable US metros",
+   nbhds:["Scarborough","North York","Regent Park","Little Jamaica"],vibes:["Diverse","Safe","Opportunity","Multicultural"]},
+  {id:"bangkok",name:"Bangkok, Thailand",flag:"🇹🇭",region:"Southeast Asia",tagline:"Nomad Paradise",color:"#8A4A1A",colorBg:"rgba(138,74,26,0.1)",
+   scores:{cost:5,black_culture:2,black_large:1,diaspora:1,diverse:3,walkable:3,transit:4,warm:4,mild:2,seasons:1,safety:4,healthcare:5,nightlife:5,food:5,arts:3,jobs_strong:3,jobs_ops:2,expat:5,english_ok:2,visa_easy:4,visa_pr:1,visa_nomad:4,beach:2,outdoor:4,airport:5,africa_close:0,fast:4,balanced:3,slow:2},
+   rent:"$500-$1,000/mo",blackPop:"Small but growing African and Black American expat community",
+   highlights:["World-class affordable healthcare","Incredibly affordable lifestyle","Thriving expat and digital nomad scene","Amazing food","Easy access to SE Asia travel"],
+   cons:["Extreme heat and humidity","Language barrier significant","Small Black community","Visa runs required (no easy long-term path)"],
+   climate:"Tropical — hot year round, monsoon season May-Oct, cool Nov-Feb",visa:"Easy — tourist visa, LTR visa for remote workers",costNote:"~75% cheaper than US — premium lifestyle on modest income",
+   nbhds:["Sukhumvit","Silom","Sathorn","Ari"],vibes:["Affordable","Nomad-Friendly","Exciting","Food-Forward"]},
+  {id:"amsterdam",name:"Amsterdam, Netherlands",flag:"🇳🇱",region:"Europe",tagline:"Progressive and Free",color:"#2A5A8A",colorBg:"rgba(42,90,138,0.1)",
+   scores:{cost:2,black_culture:3,black_large:3,diaspora:3,diverse:4,walkable:5,transit:4,warm:2,mild:3,seasons:3,safety:4,healthcare:5,nightlife:5,food:4,arts:4,jobs_strong:4,jobs_ops:3,expat:5,english_ok:5,visa_easy:2,visa_pr:3,visa_nomad:3,beach:2,outdoor:4,airport:5,africa_close:2,fast:3,balanced:4,slow:3},
+   rent:"$1,800-$2,800/mo",blackPop:"~14% non-Western — Surinamese, Antillean, African communities",
+   highlights:["Most bikeable city in the world","English widely spoken","Progressive and open culture","Strong job market for internationals","Surinamese and Caribbean Black community"],
+   cons:["Very expensive and worsening","Grey weather","Housing crisis","Highly competitive visa"],
+   climate:"Maritime — mild but grey, rainy, rarely extreme cold",visa:"Moderate — EU Blue Card or Dutch highly skilled migrant",costNote:"Expensive — comparable to major US cities",
+   nbhds:["Bijlmer","De Pijp","Noord","Bos en Lommer"],vibes:["Progressive","Bikeable","Liberal","Cosmopolitan"]},
+  {id:"cape_town",name:"Cape Town, South Africa",flag:"🇿🇦",region:"Southern Africa",tagline:"Wild and Beautiful",color:"#2A7A5A",colorBg:"rgba(42,122,90,0.1)",
+   scores:{cost:5,black_culture:4,black_large:4,diaspora:3,diverse:4,walkable:3,transit:2,warm:4,mild:4,seasons:2,safety:2,healthcare:3,nightlife:4,food:4,arts:4,jobs_strong:3,jobs_ops:2,expat:4,english_ok:5,visa_easy:4,visa_pr:2,visa_nomad:4,beach:5,outdoor:5,airport:4,africa_close:5,fast:3,balanced:4,slow:4},
+   rent:"$600-$1,200/mo",blackPop:"~38% Black African — stunning Pan-African cultural scene",
+   highlights:["Breathtaking natural beauty","English widely spoken","Year-round outdoor lifestyle","Vibrant arts and Black creative scene","Incredibly affordable on USD income"],
+   cons:["High crime rates","Severe inequality","Load shedding (power cuts)","Political instability"],
+   climate:"Mediterranean — warm dry summers, mild wet winters, gorgeous",visa:"Easy — Remote Worker Visa available",costNote:"~70% cheaper than US on USD income",
+   nbhds:["Observatory","Woodstock","Langa","Sea Point"],vibes:["Beautiful","Outdoor","Affordable","Creative"]},
+  {id:"sao_paulo",name:"Sao Paulo, Brazil",flag:"🇧🇷",region:"Latin America",tagline:"Black Megacity",color:"#8A2A4A",colorBg:"rgba(138,42,74,0.1)",
+   scores:{cost:4,black_culture:5,black_large:5,diaspora:4,diverse:5,walkable:3,transit:4,warm:4,mild:3,seasons:2,safety:2,healthcare:3,nightlife:5,food:5,arts:4,jobs_strong:4,jobs_ops:3,expat:4,english_ok:2,visa_easy:4,visa_pr:3,visa_nomad:3,beach:0,outdoor:3,airport:5,africa_close:0,fast:5,balanced:3,slow:1},
+   rent:"$700-$1,300/mo",blackPop:"~35% Black — largest Black population outside Africa",
+   highlights:["Largest Black diaspora city in the world","World-class food, art and nightlife","Enormous economic hub","Massive Afro-Brazilian culture scene","Warm and vibrant energy"],
+   cons:["Portuguese is essential","Traffic is extreme","High crime in parts","Pollution"],
+   climate:"Subtropical — warm year round, rainy summers, mild winters",visa:"Easy — digital nomad visa + Portuguese ancestry path",costNote:"~55% cheaper than US on USD income",
+   nbhds:["Vila Madalena","Pinheiros","Liberdade","Consolacao"],vibes:["Vibrant","Cultural","Diverse","Energetic"]},
+  {id:"bali",name:"Bali, Indonesia",flag:"🇮🇩",region:"Southeast Asia",tagline:"Slow Living and Nature",color:"#5A7A2A",colorBg:"rgba(90,122,42,0.1)",
+   scores:{cost:5,black_culture:2,black_large:1,diaspora:1,diverse:3,walkable:2,transit:1,warm:4,mild:4,seasons:2,safety:4,healthcare:3,nightlife:4,food:4,arts:3,jobs_strong:2,jobs_ops:1,expat:5,english_ok:3,visa_easy:4,visa_pr:1,visa_nomad:4,beach:5,outdoor:5,airport:4,africa_close:0,fast:2,balanced:3,slow:5},
+   rent:"$400-$900/mo",blackPop:"Very small Black community — mostly Southeast Asian population",
+   highlights:["Incredibly affordable","Stunning natural beauty","World-class wellness and yoga culture","Strong digital nomad community","Spiritual and creative energy"],
+   cons:["Very small Black community","No easy long-term visa path","Limited if not remote working","Tourist-heavy"],
+   climate:"Tropical — warm year round, dry season May-Sep, rainy Nov-Mar",visa:"Moderate — B211A social visa, digital nomad visa",costNote:"~80% cheaper than US — luxury lifestyle very affordable",
+   nbhds:["Canggu","Seminyak","Ubud","Sanur"],vibes:["Peaceful","Spiritual","Affordable","Natural"]},
+  {id:"abuja",name:"Abuja, Nigeria",flag:"🇳🇬",region:"West Africa",tagline:"African Power",color:"#2A6A4A",colorBg:"rgba(42,106,74,0.1)",
+   scores:{cost:4,black_culture:5,black_large:5,diaspora:4,diverse:5,walkable:2,transit:2,warm:3,mild:3,seasons:2,safety:3,healthcare:2,nightlife:5,food:4,arts:4,jobs_strong:4,jobs_ops:3,expat:3,english_ok:5,visa_easy:4,visa_pr:2,visa_nomad:2,beach:0,outdoor:3,airport:4,africa_close:5,fast:4,balanced:3,slow:2},
+   rent:"$500-$1,200/mo",blackPop:"~100% Black — Nigeria is Africa's largest economy",
+   highlights:["Africa's most powerful economy","English official language","Massive Afrobeats and creative scene","Strong professional networks","Nigerian diaspora return community"],
+   cons:["Infrastructure challenges","Healthcare limited","Power outages common","Traffic intense"],
+   climate:"Tropical — hot dry season, rainy season April-October",visa:"Easy for diaspora / Nigerian passport holders",costNote:"Varies — affordable on USD but inflation is high",
+   nbhds:["Maitama","Wuse 2","Garki","Jabi"],vibes:["Powerful","Cultural","Ambitious","Community"]},
+  {id:"paris",name:"Paris, France",flag:"🇫🇷",region:"Europe",tagline:"Sophisticated and Cultural",color:"#4A2A6A",colorBg:"rgba(74,42,106,0.1)",
+   scores:{cost:2,black_culture:4,black_large:3,diaspora:3,diverse:4,walkable:5,transit:5,warm:3,mild:3,seasons:3,safety:3,healthcare:5,nightlife:5,food:5,arts:5,jobs_strong:3,jobs_ops:3,expat:4,english_ok:2,visa_easy:3,visa_pr:3,visa_nomad:3,beach:0,outdoor:3,airport:5,africa_close:3,fast:3,balanced:4,slow:3},
+   rent:"$1,500-$2,500/mo",blackPop:"~10-15% — large Afro-French, Caribbean and West African communities",
+   highlights:["Rich Black French and Afro-Caribbean culture","World-class healthcare","Extraordinary food, art, architecture","Easy EU travel access","Longstanding Black American expat tradition"],
+   cons:["French language nearly essential","Bureaucracy notorious","Expensive","Social tensions around race can be complex"],
+   climate:"Temperate — mild 4 seasons, warm summers, cool winters",visa:"Moderate — Talent Passport or EU Blue Card",costNote:"Expensive but cheaper than London or NYC",
+   nbhds:["Belleville","Barbes","Saint-Denis","Chateau Rouge"],vibes:["Refined","Cultural","Beautiful","Complex"]}
+];
+
+function computeResults(allAnswers){
+  const tagCounts={};const avoidTags=[];
+  allAnswers.forEach((sel,qi)=>{
+    const q=QUESTIONS[qi];
+    sel.forEach(oi=>{
+      (q.opts[oi].t||[]).forEach(tag=>{
+        if(tag.startsWith('avoid_'))avoidTags.push(tag);
+        else tagCounts[tag]=(tagCounts[tag]||0)+1;
+      });
+    });
+  });
+  return CITIES.map(city=>{
+    const sc=city.scores;let s=0;
+    const weights=[['black_large',sc.black_large,4],['black_culture',sc.black_culture,3],['diaspora',sc.diaspora,3],['africa',sc.africa_close,3],['diverse',sc.diverse,2],['walkable',sc.walkable,3],['transit',sc.transit,2],['warm',sc.warm,3],['mild',sc.mild,2],['outdoor',sc.outdoor,2],['beach',sc.beach,3],['nightlife',sc.nightlife,2],['food',sc.food,2],['arts',sc.arts,2],['jobs_strong',sc.jobs_strong,3],['jobs_ops',sc.jobs_ops,2],['expat',sc.expat,2],['english_ok',sc.english_ok,3],['english_must',sc.english_ok,4],['english_pref',sc.english_ok,2],['visa_easy',sc.visa_easy,3],['visa_pr',sc.visa_pr,3],['visa_nomad',sc.visa_nomad,2],['remote',sc.visa_easy,1],['healthcare_high',sc.healthcare,3],['healthcare_mid',sc.healthcare,2],['safety_high',sc.safety,4],['safety_mid',sc.safety,2],['airport',sc.airport,2],['fast',sc.fast,2],['balanced',sc.balanced,2],['slow',sc.slow,2],['cost_high',sc.cost,4],['cost_mid',sc.cost,3],['cost_low',sc.cost,2],['cost_bonus',sc.cost,1]];
+    weights.forEach(([tag,val,mult])=>{if(tagCounts[tag])s+=val*(tagCounts[tag])*mult;});
+    if(avoidTags.includes('avoid_expensive')&&sc.cost<=2)s-=20;
+    if(avoidTags.includes('avoid_cold')&&sc.warm<=2)s-=20;
+    if(avoidTags.includes('avoid_no_black')&&sc.black_large<=2)s-=25;
+    if(avoidTags.includes('avoid_no_english')&&sc.english_ok<=2)s-=20;
+    if(avoidTags.includes('avoid_hard_visa')&&sc.visa_easy<=2)s-=20;
+    if(avoidTags.includes('avoid_no_health')&&sc.healthcare<=2)s-=20;
+    if(avoidTags.includes('avoid_unsafe')&&sc.safety<=2)s-=25;
+    if(avoidTags.includes('avoid_no_transit')&&sc.transit<=2)s-=15;
+    return{...city,pct:Math.min(Math.max(Math.round((s/400)*100),18),97)};
+  }).sort((a,b)=>b.pct-a.pct);
+}
+
+function dots(val,color){
+  return Array.from({length:5},(_,i)=>`<div class="score-dot" style="background:${i<val?color:'var(--border)'}"></div>`).join('');
+}
+
+let phase='intro',qIdx=0,answers=Array.from({length:QUESTIONS.length},()=>[]),results=null,openCard=0;
+
+function renderIntro(){
+  return`<div class="intro">
+    <div class="intro-eye">LIFEPATH · GLOBAL CITY FINDER</div>
+    <h1 class="intro-h">Where in the world<br>should you <span>live?</span></h1>
+    <p class="intro-p">15 questions. 15 global cities across Africa, Europe, Latin America, Southeast Asia, and the Middle East. Matched on cost, culture, visa ease, safety, healthcare, and more.</p>
+    <div class="factor-pills">
+      ${['Cost of Living','Black Community','Weather','Safety','Visa Ease','Healthcare','Walkability','Nightlife','Nature','Job Market','Expat Scene','Language'].map(f=>`<span class="factor-pill">${f}</span>`).join('')}
+    </div>
+    <button class="btn-start" onclick="startQuiz()">START ASSESSMENT →</button>
+    <div class="intro-note">15 questions · 15 cities · Africa · Europe · Latin America · SE Asia · Middle East</div>
+  </div>`;
+}
+
+function renderProgress(){
+  const q=QUESTIONS[qIdx];
+  const segs=QUESTIONS.map((_,i)=>{
+    const cls=i<qIdx?'done':i===qIdx?'active':'';
+    return`<div class="progress-seg ${cls}" style="flex:${i===qIdx?4:1}"></div>`;
+  }).join('');
+  return`<div class="progress-wrap">
+    <div class="progress-meta"><span class="progress-cat">${q.cat.toUpperCase()}</span><span class="progress-num">${q.num} / ${QUESTIONS.length}</span></div>
+    <div class="progress-bar">${segs}</div>
+  </div>`;
+}
+
+function renderQuiz(){
+  const q=QUESTIONS[qIdx];const sel=answers[qIdx];const isMulti=q.type==='multi';const max=q.max||99;
+  const instrText=isMulti?`Select up to ${max} <span class="q-sel">· ${sel.length}/${max} selected</span>`:'Choose one';
+  const optHtml=q.opts.map((opt,i)=>{
+    const isOn=sel.includes(i);const isDisabled=isMulti&&!isOn&&sel.length>=max;
+    return`<button class="opt ${isOn?'selected':''} ${isDisabled?'disabled':''}" onclick="toggleOpt(${i})" ${isDisabled?'disabled':''}>
+      <span class="opt-icon">${opt.i}</span>
+      <div style="flex:1">
+        <div class="opt-label">${opt.l}</div>
+        ${opt.sub?`<div class="opt-sub">${opt.sub}</div>`:''}
+      </div>
+      <div class="opt-check ${isMulti?'multi':''}">${isOn?'✓':''}</div></button>`;
+  }).join('');
+  return`<div class="quiz-wrap">
+    ${renderProgress()}
+    <div class="q-meta"><span class="q-cat">${q.cat.toUpperCase()}</span><span class="q-num">Q${q.num}</span></div>
+    <h2 class="q-text">${q.q}</h2>
+    <p class="q-instr">${instrText}</p>
+    <div class="opts">${optHtml}</div>
+  </div>
+  <div class="bottom-nav">
+    <button class="btn-back ${qIdx===0?'hidden':''}" onclick="goBack()">← Back</button>
+    <span class="nav-sel">${sel.length>0?sel.length+' selected':'select to continue'}</span>
+    <button class="btn-next ${sel.length===0?'disabled':''}" onclick="goNext()" ${sel.length===0?'disabled':''}>${qIdx+1===QUESTIONS.length?'SEE MY CITIES →':'NEXT →'}</button>
+  </div>`;
+}
+
+function renderCard(city,rank){
+  const isOpen=openCard===rank;const medals=['🥇','🥈','🥉','④'];
+  const scoreKeys=[['Cost of Living','cost'],['Black Community','black_large'],['Cultural Scene','black_culture'],['Walkability','walkable'],['Safety','safety'],['Healthcare','healthcare'],['Nightlife & Food','nightlife'],['Visa Ease','visa_easy'],['Expat Scene','expat'],['English Access','english_ok'],['Outdoor Access','outdoor'],['Job Market','jobs_strong']];
+  return`<div class="r-card ${isOpen?'open':''}" style="border-color:${isOpen?city.color+'60':'var(--border)'}">
+    <button class="r-header" onclick="toggleCard(${rank})">
+      <div class="r-emoji-wrap" style="background:${city.colorBg};border:1px solid ${city.color}40"><span style="font-size:28px">${city.flag}</span></div>
+      <div class="r-info">
+        <div class="r-flag">${rank<3?medals[rank]+' ':''} ${city.name}</div>
+        <div class="r-tag">${city.region} · ${city.tagline} · ${city.rent}</div>
+        <div class="r-vibes">${city.vibes.map(v=>`<span class="r-vibe" style="color:${city.color};border:1px solid ${city.color}30">${v}</span>`).join('')}</div>
+      </div>
+      <div class="r-score-wrap"><div class="r-score" style="color:${city.color}">${city.pct}%</div><div class="r-score-lbl">match</div></div>
+      <span class="r-toggle">${isOpen?'▲':'▼'}</span>
+    </button>
+    ${isOpen?`<div class="r-body">
+      <div class="section-lbl" style="margin-top:20px">At a glance</div>
+      <div class="scores-grid">${scoreKeys.map(([lbl,key])=>`<div class="score-row"><span class="score-lbl">${lbl}</span><div class="score-dots">${dots(city.scores[key]||0,city.color)}</div></div>`).join('')}</div>
+      <div class="highlights-grid">
+        <div><div class="hl-col-title">Why it fits</div>${city.highlights.map(h=>`<div class="hl-row"><span style="color:${city.color};font-size:10px;margin-top:3px;flex-shrink:0">✦</span><span class="hl-text">${h}</span></div>`).join('')}</div>
+        <div><div class="hl-col-title">Heads up</div>${city.cons.map(c=>`<div class="hl-row"><span style="color:#E84A4A;font-size:10px;margin-top:3px;flex-shrink:0">✕</span><span class="hl-text">${c}</span></div>`).join('')}</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-lbl">Climate</div><div class="info-val">${city.climate}</div></div>
+        <div class="info-box"><div class="info-lbl">Visa</div><div class="info-val">${city.visa}</div></div>
+        <div class="info-box"><div class="info-lbl">Cost Note</div><div class="info-val">${city.costNote}</div></div>
+      </div>
+      <div class="black-box" style="background:${city.colorBg};border:1px solid ${city.color}20">
+        <span style="font-size:10px;font-family:var(--mono);color:${city.color};font-weight:700;letter-spacing:0.12em">BLACK COMMUNITY  </span>
+        <span style="font-size:13px;color:var(--textM)">${city.blackPop}</span>
+      </div>
+      <div class="section-lbl">Neighborhoods to explore</div>
+      <div class="nbhd-tags">${city.nbhds.map(n=>`<span class="nbhd-tag" style="color:${city.color};border:1px solid ${city.color}30">${n}</span>`).join('')}</div>
+    </div>`:''}
+  </div>`;
+}
+
+function renderResults(){
+  const top4=results.slice(0,4);const others=results.slice(4,9);
+  return`<div class="results-wrap">
+    <div class="results-eye">YOUR RESULTS</div>
+    <h2 class="results-h">Your global cities.</h2>
+    <p class="results-sub">Ranked by how well each city matches everything you told us. Tap any city to expand the full breakdown.</p>
+    ${top4.map((c,i)=>renderCard(c,i)).join('')}
+    <div class="others-lbl" style="margin-top:24px">Also worth a look</div>
+    <div class="others-grid">${others.map(c=>`<div class="other-chip"><span style="font-size:20px">${c.flag}</span><div><div class="other-name">${c.name}</div><div class="other-pct">${c.pct}% match</div></div></div>`).join('')}</div>
+    <button class="btn-retake" onclick="restart()">↩ Start Over</button>
+  </div>`;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(phase==='intro')app.innerHTML=renderIntro();
+  else if(phase==='quiz')app.innerHTML=renderQuiz();
+  else app.innerHTML=renderResults();
+  window.scrollTo(0,0);
+}
+function startQuiz(){phase='quiz';qIdx=0;render();}
+function goBack(){if(qIdx>0){qIdx--;render();}}
+function goNext(){
+  if(answers[qIdx].length===0)return;
+  if(qIdx+1>=QUESTIONS.length){results=computeResults(answers);phase='results';}
+  else qIdx++;
+  render();
+}
+function toggleOpt(i){
+  const q=QUESTIONS[qIdx];const sel=answers[qIdx];const isMulti=q.type==='multi';
+  if(!isMulti){answers[qIdx]=sel.includes(i)?[]:[i];}
+  else{if(sel.includes(i))answers[qIdx]=sel.filter(x=>x!==i);else if(sel.length<(q.max||99))answers[qIdx]=[...sel,i];}
+  render();
+}
+function toggleCard(rank){openCard=openCard===rank?-1:rank;render();}
+function restart(){phase='intro';qIdx=0;openCard=0;answers=Array.from({length:QUESTIONS.length},()=>[]);results=null;render();}
+render();
+</script>
+</body>
+</html>

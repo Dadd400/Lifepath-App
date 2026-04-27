@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>US City Finder · LifePath</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0F1117;--surface:#161820;--card:#1C1F2B;--border:#252838;--borderB:#383C55;
+  --text:#F0EDE6;--textM:#8C8FA8;--textD:#3C3F55;
+  --accent:#E8B86D;--accentD:#B8843D;--accentBg:rgba(232,184,109,0.08);
+  --green:#56CFB2;--coral:#FF6B6B;--lav:#9B8FE8;
+  --ff:'Abril Fatface',Georgia,serif;
+  --sans:'Outfit',sans-serif;
+  --mono:'Space Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.nav-logo{font-size:16px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none}
+.intro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 60px}
+.city-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:40px}
+.city-pill{background:rgba(232,184,109,0.08);border:1px solid rgba(232,184,109,0.2);border-radius:10px;padding:6px 12px;font-size:12px;font-family:var(--mono);color:var(--accent);display:flex;align-items:center;gap:6px}
+.intro-eye{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.3em;margin-bottom:16px}
+.intro-h{font-family:var(--ff);font-size:clamp(48px,10vw,88px);color:var(--text);line-height:0.95;letter-spacing:-0.02em;margin-bottom:4px}
+.intro-h span{color:var(--accent)}
+.intro-p{font-size:16px;color:var(--textM);line-height:1.8;max-width:480px;margin:24px 0 28px}
+.factor-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:40px}
+.factor-pill{font-size:11px;font-family:var(--mono);color:var(--textM);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+.btn-start{background:var(--accent);color:var(--bg);border:none;padding:15px 40px;border-radius:30px;font-size:14px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.08em;box-shadow:0 8px 32px rgba(232,184,109,0.4)}
+.intro-note{margin-top:14px;font-size:11px;color:var(--textD);font-family:var(--mono)}
+.progress-wrap{margin-bottom:24px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:8px}
+.progress-cat{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.2em;text-transform:uppercase}
+.progress-num{font-size:10px;font-family:var(--mono);color:var(--textD)}
+.progress-bar{display:flex;gap:3px}
+.progress-seg{height:2px;border-radius:1px;background:var(--border);transition:all 0.3s}
+.progress-seg.done,.progress-seg.active{background:var(--accent)}
+.progress-seg.active{flex:4}
+.quiz-wrap{padding-top:80px;padding-bottom:120px}
+.q-meta{display:flex;justify-content:space-between;margin-bottom:12px}
+.q-cat{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.2em;text-transform:uppercase}
+.q-num{font-size:10px;font-family:var(--mono);color:var(--textD)}
+.q-text{font-family:var(--ff);font-size:clamp(22px,4.5vw,32px);font-weight:400;color:var(--text);margin-bottom:6px;line-height:1.2;letter-spacing:-0.01em}
+.q-instr{font-size:11px;color:var(--textD);font-family:var(--mono);margin-bottom:20px;letter-spacing:0.06em}
+.q-sel{color:var(--accent)}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.opt{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;font-family:var(--sans)}
+.opt:hover{border-color:var(--borderB)}
+.opt.selected{background:var(--accentBg);border-color:rgba(232,184,109,0.5)}
+.opt-icon{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.opt-label{font-size:14px;color:var(--text);flex:1;line-height:1.4}
+.opt.selected .opt-label{color:var(--accent)}
+.opt-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--bg);transition:all 0.15s}
+.opt-check.multi{border-radius:4px}
+.opt.selected .opt-check{background:var(--accent);border-color:var(--accent)}
+.opt.disabled{opacity:0.35;cursor:not-allowed}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,17,23,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:14px 20px 24px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.btn-back{background:none;border:1px solid var(--border);color:var(--textM);font-family:var(--mono);font-size:12px;cursor:pointer;padding:9px 18px;border-radius:20px}
+.btn-back.hidden{opacity:0;pointer-events:none}
+.nav-sel{font-size:11px;color:var(--textD);font-family:var(--mono)}
+.btn-next{background:var(--accent);border:none;color:var(--bg);padding:10px 24px;border-radius:20px;font-size:13px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em;transition:all 0.15s}
+.btn-next.disabled{background:var(--border);color:var(--textD);cursor:default}
+.results-wrap{padding-top:80px;padding-bottom:60px}
+.results-eye{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:0.3em;margin-bottom:12px;text-transform:uppercase}
+.results-h{font-family:var(--ff);font-size:clamp(36px,7vw,60px);font-weight:400;color:var(--text);margin-bottom:14px;line-height:1}
+.results-sub{font-size:14px;color:var(--textM);line-height:1.7;margin-bottom:28px}
+.r-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:10px;transition:all 0.25s}
+.r-card.open{box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.r-header{width:100%;background:none;border:none;cursor:pointer;padding:18px 22px;text-align:left;display:flex;align-items:center;gap:14px;font-family:var(--sans)}
+.r-emoji-wrap{width:52px;height:52px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.r-info{flex:1;min-width:0}
+.r-name{font-size:17px;font-weight:600;color:var(--text);margin-bottom:2px}
+.r-tag{font-size:11px;color:var(--textM);font-family:var(--mono)}
+.r-vibes{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.r-vibe{font-size:9px;font-family:var(--mono);border-radius:8px;padding:2px 7px;letter-spacing:0.08em}
+.r-score-wrap{text-align:right;flex-shrink:0}
+.r-score{font-size:28px;font-weight:700;font-family:var(--mono);line-height:1}
+.r-score-lbl{font-size:9px;color:var(--textD);font-family:var(--mono)}
+.r-toggle{color:var(--textD);font-size:12px;margin-left:4px}
+.r-body{padding:4px 22px 24px;border-top:1px solid var(--border)}
+.section-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.15em;color:var(--textD);margin-bottom:10px;text-transform:uppercase}
+.scores-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;background:var(--surface);border-radius:10px;padding:16px;margin-bottom:20px}
+.score-row{display:flex;justify-content:space-between;align-items:center}
+.score-lbl{font-size:11px;color:var(--textM);font-family:var(--mono)}
+.score-dots{display:flex;gap:3px}
+.score-dot{width:8px;height:8px;border-radius:50%}
+.highlights-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.hl-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.hl-icon{font-size:10px;margin-top:3px;flex-shrink:0}
+.hl-text{font-size:12px;color:var(--textM);line-height:1.5}
+.hl-col-title{font-size:9px;font-family:var(--mono);letter-spacing:0.15em;color:var(--textD);margin-bottom:10px;text-transform:uppercase}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.info-box{background:var(--surface);border-radius:10px;padding:12px 14px}
+.info-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.12em;color:var(--textD);margin-bottom:5px;text-transform:uppercase}
+.info-val{font-size:12px;color:var(--textM);line-height:1.5}
+.nbhd-row{margin-bottom:16px}
+.nbhd-tags{display:flex;flex-wrap:wrap;gap:7px}
+.nbhd-tag{font-size:11px;font-family:var(--mono);padding:4px 11px;border-radius:20px}
+.others-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.2em;color:var(--textD);margin-bottom:10px;text-transform:uppercase}
+.others-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.other-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.other-emoji{font-size:18px}
+.other-name{font-size:13px;color:var(--text);font-weight:500}
+.other-pct{font-size:10px;font-family:var(--mono);color:var(--textD)}
+.btn-retake{background:none;border:1px solid var(--border);color:var(--textM);font-size:12px;font-family:var(--mono);cursor:pointer;padding:10px 24px;border-radius:20px;letter-spacing:0.08em}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="/">✦ LifePath</a>
+  <a class="nav-back" href="/">← Back</a>
+</nav>
+<div class="wrap" id="app"></div>
+<script>
+const QUESTIONS=[
+  {id:"life_stage",num:1,cat:"About You",q:"What stage of life are you in right now?",type:"single",
+   opts:[{l:"High school — figuring out where to go",i:"📚",t:["young"]},{l:"College — planning where to land after",i:"🎒",t:["college"]},{l:"Recent grad (0–2 years out)",i:"🚀",t:["recent_grad","young_professional"]},{l:"Young professional (2–7 years in)",i:"💼",t:["young_professional"]},{l:"Established professional / career transition",i:"🔀",t:["established"]},{l:"Relocating with a partner or family",i:"👨‍👩‍👧",t:["family"]}]},
+  {id:"budget",num:2,cat:"About You",q:"What's your monthly budget for rent?",type:"single",
+   opts:[{l:"Under $900/mo — affordability is the priority",i:"💚",t:["cost_high"]},{l:"$900–$1,400/mo — value conscious",i:"💛",t:["cost_mid"]},{l:"$1,400–$2,000/mo — willing to pay for quality of life",i:"🟠",t:["cost_low"]},{l:"$2,000+/mo — cost is secondary",i:"🔴",t:[]}]},
+  {id:"climate",num:3,cat:"Lifestyle",q:"What kind of climate do you actually want?",type:"multi",max:3,
+   opts:[{l:"Warm and sunny year-round",i:"☀️",t:["warm"]},{l:"Four seasons — I like variety",i:"🍂",t:["seasons"]},{l:"Mild and temperate — nothing extreme",i:"🌤️",t:["mild"]},{l:"Hot summers are fine, mild winters preferred",i:"🌡️",t:["warm","mild"]},{l:"I don't care about weather if everything else fits",i:"🤷",t:[]}]},
+  {id:"culture",num:4,cat:"Lifestyle",q:"What kind of cultural vibrancy matters to you?",type:"multi",max:6,
+   opts:[{l:"A strong arts, music, and creative scene",i:"🎨",t:["arts"]},{l:"Diverse food culture — I want to eat well everywhere",i:"🍜",t:["food"]},{l:"A visible and active Black community and culture",i:"✊",t:["black_culture"]},{l:"A strong Latino or Hispanic cultural presence",i:"🌮",t:["latino"]},{l:"Rich international and immigrant community",i:"🌍",t:["intl"]},{l:"LGBTQ+ inclusive and welcoming community",i:"🏳️‍🌈",t:["lgbtq"]},{l:"Strong faith communities",i:"🕊️",t:["black_culture","intl"]},{l:"I care more about other factors",i:"➡️",t:[]}]},
+  {id:"career",num:5,cat:"Career",q:"What's your career situation?",type:"multi",max:4,
+   opts:[{l:"Remote — I can work from anywhere",i:"🌐",t:["remote"]},{l:"I need a strong tech or finance job market",i:"💻",t:["jobs_tech","jobs_finance"]},{l:"I'm in or entering healthcare",i:"🏥",t:["jobs_health"]},{l:"I'm in or entering a creative field",i:"🎬",t:["jobs_creative"]},{l:"I'm in the trades or skilled labor",i:"🔧",t:["jobs_trades"]},{l:"Still figuring out my career path",i:"🧭",t:[]},{l:"I need access to a major international airport",i:"✈️",t:["airport"]}]},
+  {id:"transit",num:6,cat:"Day to Day",q:"How do you want to get around?",type:"multi",max:4,
+   opts:[{l:"Walk everywhere — I want to be car-free",i:"🚶",t:["walkable","transit"]},{l:"Strong public transit system",i:"🚇",t:["transit"]},{l:"I'll drive — walkability isn't a priority",i:"🚗",t:[]},{l:"Biking-friendly infrastructure",i:"🚲",t:["walkable"]},{l:"A mix — walkable area but I'll have a car",i:"⚖️",t:["walkable"]}]},
+  {id:"social",num:7,cat:"Day to Day",q:"What does your ideal social life look like?",type:"multi",max:3,
+   opts:[{l:"Thriving nightlife — bars, clubs, late nights",i:"🌃",t:["nightlife"]},{l:"World-class restaurant and food scene",i:"🍽️",t:["food"]},{l:"Live music and entertainment",i:"🎵",t:["arts","nightlife"]},{l:"Outdoor social scenes — patios, parks, festivals",i:"🌳",t:["outdoor"]},{l:"Tight-knit neighborhood community feel",i:"🏘️",t:["family"]},{l:"Strong young professional social scene",i:"🤝",t:["young_professional"]},{l:"Family-friendly activities and spaces",i:"👨‍👩‍👧",t:["family"]}]},
+  {id:"nature",num:8,cat:"Day to Day",q:"How much does access to nature matter?",type:"multi",max:4,
+   opts:[{l:"Beach or waterfront access",i:"🏖️",t:["beach","outdoor"]},{l:"Hiking, trails, and serious outdoor recreation",i:"🥾",t:["outdoor"]},{l:"Day trips to mountains or natural landmarks",i:"🏔️",t:["outdoor"]},{l:"Parks and green space within the city",i:"🌿",t:["outdoor"]},{l:"Not a major factor for me",i:"🏙️",t:[]}]},
+  {id:"safety",num:9,cat:"What Matters",q:"How important is safety in choosing your city?",type:"single",
+   opts:[{l:"Top priority — I won't compromise on this",i:"🛡️",t:["safety_high"]},{l:"Important but I can navigate risk in a big city",i:"🌆",t:["safety_mid"]},{l:"I'm aware of it but it won't be a dealbreaker",i:"⚖️",t:[]},{l:"I'm street smart and adaptable",i:"💪",t:[]}]},
+  {id:"timeline",num:10,cat:"What Matters",q:"What's your long-term intention with this move?",type:"single",
+   opts:[{l:"Testing it out — 1 to 2 years",i:"🧪",t:["young_professional","young"]},{l:"Building roots — I want to stay 5+ years",i:"🌱",t:["family","established"]},{l:"Following a career opportunity — might move again",i:"📈",t:["young_professional"]},{l:"Looking for a forever city",i:"🏡",t:["family"]}]},
+  {id:"dealbreakers",num:11,cat:"What Matters",q:"What would make a city an automatic no?",type:"multi",max:8,
+   opts:[{l:"Too expensive — I can't build real purchasing power",i:"💸",t:["avoid_expensive"]},{l:"Too cold or grey — weather is a dealbreaker",i:"🥶",t:["avoid_cold"]},{l:"Too car-dependent — I need to walk or use transit",i:"🚗",t:["avoid_cardep"]},{l:"Limited cultural scene — I'd feel bored or out of place",i:"😑",t:["avoid_boring"]},{l:"Weak job market for my field",i:"📉",t:["avoid_nojobs"]},{l:"Safety concerns I'm not comfortable with",i:"⚠️",t:["avoid_unsafe"]},{l:"Too small — I need a real major city",i:"🏘️",t:["avoid_small"]},{l:"Too suburban and spread out",i:"🛣️",t:["avoid_suburban"]}]}
+];
+
+const CITIES=[
+  {id:"atlanta",name:"Atlanta, GA",emoji:"🍑",tagline:"The city that never stops building",color:"#E8734A",colorBg:"rgba(232,115,74,0.1)",
+   scores:{cost:3,black_culture:5,latino:2,intl:3,lgbtq:3,arts:4,food:4,nightlife:5,walkable:3,transit:2,outdoor:3,safety:2,jobs_tech:4,jobs_finance:4,jobs_health:4,jobs_trades:3,warm:5,mild:3,seasons:2,young_professional:5,family:3,beach:0,airport:5},
+   rent:"$1,400-$1,900/mo",highlights:["Black cultural capital of the South — HBCUs, art, music","One of the fastest-growing job markets in the US","Strong young professional and networking scene","Home to Delta, Coca-Cola, CNN, and booming film industry"],
+   cons:["Traffic among the worst in the US","Car-dependent outside of Beltline","Growing pains — affordability tightening"],
+   nbhds:["Old Fourth Ward","West End","Midtown","Decatur","East Point"],
+   climate:"Hot humid summers, mild winters — rarely freezes",transit:"MARTA light rail covers major corridors",vibes:["Hustle","Culture","Ambition","Community"]},
+  {id:"charlotte",name:"Charlotte, NC",emoji:"🏙️",tagline:"The New South's fastest rising star",color:"#4A90D9",colorBg:"rgba(74,144,217,0.1)",
+   scores:{cost:4,black_culture:4,latino:3,intl:3,lgbtq:3,arts:3,food:3,nightlife:3,walkable:2,transit:2,outdoor:3,safety:3,jobs_tech:4,jobs_finance:5,jobs_health:4,jobs_trades:4,warm:4,mild:4,seasons:3,young_professional:4,family:4,beach:0,airport:4},
+   rent:"$1,200-$1,700/mo",highlights:["Major US banking hub — Bank of America, Truist HQ","One of the fastest-growing cities in the Southeast","Strong Black middle-class and professional community","4 mild seasons and easy access to mountains and beaches"],
+   cons:["Sprawling and car-dependent","Nightlife still developing vs. Atlanta","Growing pains — traffic worsening"],
+   nbhds:["NoDa","Plaza Midwood","South End","University City","Steele Creek"],
+   climate:"Mild four seasons. Hot summers, light snow possible in winter",transit:"LYNX light rail expanding but still heavily car-dependent",vibes:["Upwardly Mobile","Steady","Livable","Growing"]},
+  {id:"houston",name:"Houston, TX",emoji:"🤠",tagline:"Big city energy with room to breathe",color:"#9B6FD9",colorBg:"rgba(155,111,217,0.1)",
+   scores:{cost:5,black_culture:4,latino:5,intl:5,lgbtq:3,arts:4,food:5,nightlife:4,walkable:1,transit:2,outdoor:2,safety:3,jobs_tech:4,jobs_finance:4,jobs_health:5,jobs_trades:5,warm:4,mild:2,seasons:1,young_professional:4,family:4,beach:0,airport:5},
+   rent:"$1,050-$1,550/mo",highlights:["Most diverse city in the US — extraordinary food culture","No state income tax — keep more of what you earn","Massive medical center, energy sector, and growing tech hub","Very affordable for a major metro"],
+   cons:["Not walkable — car is essentially mandatory","Brutal summer heat and humidity","Flooding risk"],
+   nbhds:["Midtown","Montrose","Third Ward","EaDo","Heights"],
+   climate:"Very hot and humid May-October. Mild winters",transit:"METRORail covers some corridors. Almost everyone drives",vibes:["Diverse","Affordable","Ambitious","No Limits"]},
+  {id:"dc",name:"Washington, DC",emoji:"🏛️",tagline:"Power, culture, and purpose in one city",color:"#E84A4A",colorBg:"rgba(232,74,74,0.1)",
+   scores:{cost:1,black_culture:5,latino:4,intl:5,lgbtq:5,arts:5,food:5,nightlife:4,walkable:5,transit:5,outdoor:3,safety:3,jobs_tech:4,jobs_finance:4,jobs_health:4,jobs_trades:3,warm:3,mild:2,seasons:4,young_professional:5,family:3,beach:0,airport:5},
+   rent:"$2,100-$3,000/mo",highlights:["World-class walkability and Metro system","Rich Black American cultural history and community","Enormous job market — federal, private sector, nonprofits","Free Smithsonian museums and incredible public spaces"],
+   cons:["Very expensive — one of the priciest metros in the US","Political atmosphere is pervasive","Gentrification has dramatically shifted neighborhoods"],
+   nbhds:["U Street Corridor","Columbia Heights","Shaw","Silver Spring MD","Alexandria VA"],
+   climate:"Four seasons — hot humid summers, cold winters with occasional snow",transit:"Excellent Metro system. Very walkable core",vibes:["Power","Purpose","Culture","Connected"]},
+  {id:"raleigh",name:"Raleigh-Durham, NC",emoji:"🔬",tagline:"The Research Triangle — brains and balance",color:"#56CFB2",colorBg:"rgba(86,207,178,0.1)",
+   scores:{cost:4,black_culture:4,latino:3,intl:3,lgbtq:3,arts:3,food:3,nightlife:2,walkable:2,transit:2,outdoor:4,safety:4,jobs_tech:5,jobs_finance:3,jobs_health:5,jobs_trades:3,warm:4,mild:4,seasons:3,young_professional:4,family:5,beach:0,airport:3},
+   rent:"$1,150-$1,650/mo",highlights:["Research Triangle — UNC, Duke, NC State, massive biotech/pharma","Strong HBCUs — NCCU, Shaw University","Excellent quality of life with lower cost than comparable metros","Great for families — top schools and safe neighborhoods"],
+   cons:["Suburban feel — lacks big-city energy","Limited nightlife compared to Atlanta or Charlotte","Traffic worsening as it grows fast"],
+   nbhds:["Downtown Durham","Brier Creek","Cary","Five Points","Carrboro"],
+   climate:"Four mild seasons. Occasional snow. Warm pleasant summers",transit:"Mostly car-dependent. GoTriangle bus system improving",vibes:["Smart","Balanced","Family-First","Steady"]},
+  {id:"miami",name:"Miami, FL",emoji:"🌴",tagline:"Sun, culture, ambition — year round",color:"#4ECDC4",colorBg:"rgba(78,205,196,0.1)",
+   scores:{cost:2,black_culture:4,latino:5,intl:5,lgbtq:4,arts:4,food:5,nightlife:5,walkable:3,transit:2,outdoor:5,safety:3,jobs_tech:4,jobs_finance:4,jobs_health:3,jobs_trades:3,warm:5,mild:4,seasons:1,young_professional:5,family:3,beach:5,airport:5},
+   rent:"$1,900-$2,800/mo",highlights:["No state income tax — significant financial advantage","Extraordinary cultural diversity — Afro-Caribbean, Latin, international","Year-round outdoor lifestyle and beach access","Booming tech and finance scene"],
+   cons:["Very expensive — rents surged dramatically since 2020","Climate change / flooding risk is real","Traffic is brutal"],
+   nbhds:["Wynwood","Little Haiti","Brickell","Overtown","South Beach"],
+   climate:"Tropical — warm year-round, hot humid summers, hurricane season",transit:"Metrorail and Metromover exist but most people drive",vibes:["Vibrant","International","Sunny","Ambitious"]},
+  {id:"nashville",name:"Nashville, TN",emoji:"🎵",tagline:"Boomtown with a backbeat",color:"#E8B86D",colorBg:"rgba(232,184,109,0.1)",
+   scores:{cost:3,black_culture:3,latino:2,intl:2,lgbtq:3,arts:4,food:4,nightlife:5,walkable:2,transit:1,outdoor:4,safety:3,jobs_tech:4,jobs_finance:3,jobs_health:5,jobs_trades:4,warm:4,mild:3,seasons:3,young_professional:4,family:4,beach:0,airport:4},
+   rent:"$1,400-$2,000/mo",highlights:["No state income tax","Thriving music, food, and creative scene","Major healthcare industry hub — HCA, Vanderbilt Medical","Outdoor access — hiking, lakes, state parks nearby"],
+   cons:["Rapidly gentrifying — much more expensive than 5 years ago","Car-dependent — no real transit system","Tourism can make downtown feel like a party district"],
+   nbhds:["East Nashville","Germantown","North Nashville","Antioch","Berry Hill"],
+   climate:"Four seasons — hot summers, mild winters with occasional snow",transit:"Very car-dependent. WeGo bus system is limited",vibes:["Creative","Growing","Lively","Southern"]},
+  {id:"dallas",name:"Dallas, TX",emoji:"⭐",tagline:"Corporate ambition meets Southern scale",color:"#6B9FD9",colorBg:"rgba(107,159,217,0.1)",
+   scores:{cost:3,black_culture:4,latino:4,intl:4,lgbtq:3,arts:3,food:4,nightlife:4,walkable:2,transit:2,outdoor:2,safety:3,jobs_tech:4,jobs_finance:5,jobs_health:4,jobs_trades:4,warm:4,mild:2,seasons:2,young_professional:4,family:4,beach:0,airport:5},
+   rent:"$1,300-$1,800/mo",highlights:["No state income tax","Major corporate HQ relocation destination","Strong Black professional and business community","World-class arts district"],
+   cons:["Sprawling — one of the least walkable major metros","Summer heat can be extreme","Unpredictable weather swings including ice storms"],
+   nbhds:["Oak Cliff","Bishop Arts","Uptown","Deep Ellum","Frisco"],
+   climate:"Hot summers, mild winters. Tornado risk. Occasional ice storms",transit:"DART rail covers major corridors. Car still dominant",vibes:["Corporate","Big","Diverse","No Income Tax"]},
+  {id:"phoenix",name:"Phoenix, AZ",emoji:"🌵",tagline:"Desert modern — sun, space, and affordability",color:"#E8934A",colorBg:"rgba(232,147,74,0.1)",
+   scores:{cost:3,black_culture:2,latino:4,intl:3,lgbtq:3,arts:3,food:3,nightlife:3,walkable:2,transit:2,outdoor:5,safety:3,jobs_tech:4,jobs_finance:3,jobs_health:4,jobs_trades:5,warm:4,mild:3,seasons:1,young_professional:3,family:4,beach:0,airport:4},
+   rent:"$1,200-$1,700/mo",highlights:["Incredible desert landscape and outdoor lifestyle","Very affordable for a major metro","Massive trades and construction boom","Strong Latino cultural presence"],
+   cons:["Extreme summer heat — 110F+ days are common","Very car-dependent","Smaller Black community"],
+   nbhds:["Arcadia","Tempe","Scottsdale","South Mountain","Laveen"],
+   climate:"Desert — mild Oct-Apr, extremely hot May-Sep. Very dry year-round",transit:"Valley Metro light rail covers some areas. Car is essential",vibes:["Outdoorsy","Affordable","Sunny","Sprawling"]},
+  {id:"chicago",name:"Chicago, IL",emoji:"🏙️",tagline:"America's most underrated major city",color:"#4A7FD9",colorBg:"rgba(74,127,217,0.1)",
+   scores:{cost:3,black_culture:5,latino:5,intl:5,lgbtq:5,arts:5,food:5,nightlife:5,walkable:4,transit:5,outdoor:4,safety:2,jobs_tech:4,jobs_finance:5,jobs_health:5,jobs_trades:4,warm:2,mild:1,seasons:4,young_professional:5,family:3,beach:2,airport:5},
+   rent:"$1,400-$2,200/mo",highlights:["World-class food, music, art, and architecture","Excellent public transit — CTA covers the city","Rich Black cultural history — blues, house music, South Side","Major finance, healthcare, and tech hub"],
+   cons:["Harsh winters — cold, windy, and snowy","Property taxes are very high","Crime varies significantly by neighborhood"],
+   nbhds:["Bronzeville","Logan Square","Wicker Park","Hyde Park","Pilsen"],
+   climate:"Four dramatic seasons. Hot summers, brutally cold winters",transit:"Excellent CTA L train and bus system. Very walkable core",vibes:["World-Class","Cultural","Gritty","Real"]},
+  {id:"denver",name:"Denver, CO",emoji:"🏔️",tagline:"Outdoor paradise with a growing urban core",color:"#56CFB2",colorBg:"rgba(86,207,178,0.1)",
+   scores:{cost:2,black_culture:2,latino:4,intl:3,lgbtq:4,arts:3,food:4,nightlife:3,walkable:3,transit:3,outdoor:5,safety:3,jobs_tech:5,jobs_finance:3,jobs_health:4,jobs_trades:4,warm:3,mild:3,seasons:4,young_professional:4,family:4,beach:0,airport:4},
+   rent:"$1,600-$2,300/mo",highlights:["Unmatched outdoor access — skiing, hiking, biking year-round","300+ days of sunshine per year","Booming tech sector","Strong cannabis, aerospace, and healthcare industries"],
+   cons:["Expensive — prices surged significantly post-2020","Smaller Black community","Altitude takes adjustment (5,280ft)"],
+   nbhds:["Five Points","RiNo","Capitol Hill","Park Hill","Highlands"],
+   climate:"300 days of sun. Cold snowy winters. Mild spring and fall",transit:"RTD light rail and bus. Bikeable downtown. Car helpful for suburbs",vibes:["Active","Outdoorsy","Tech-Forward","Sunny"]},
+  {id:"seattle",name:"Seattle, WA",emoji:"🌲",tagline:"Tech capital with mountains and water at its doorstep",color:"#4ECDC4",colorBg:"rgba(78,205,196,0.1)",
+   scores:{cost:1,black_culture:3,latino:3,intl:4,lgbtq:5,arts:4,food:5,nightlife:3,walkable:4,transit:4,outdoor:5,safety:3,jobs_tech:5,jobs_finance:3,jobs_health:4,jobs_trades:3,warm:1,mild:3,seasons:2,young_professional:4,family:3,beach:3,airport:4},
+   rent:"$1,900-$2,800/mo",highlights:["Amazon, Microsoft, Boeing — top tech salaries in the US","No state income tax","Stunning natural setting — mountains, water, evergreen forests","Excellent food scene and progressive culture"],
+   cons:["Very expensive","Grey and rainy October-April","Smaller Black community relative to city size"],
+   nbhds:["Capitol Hill","Columbia City","Beacon Hill","Fremont","Rainier Valley"],
+   climate:"Mild and grey — famous drizzle. Gorgeous dry summers",transit:"Link Light Rail and strong bus network. Very bikeable",vibes:["Tech","Nature","Progressive","Rainy"]}
+];
+
+function scoreCity(city,tagCounts,avoidTags,budgetLevel){
+  let s=0;
+  const sc=city.scores;
+  if(tagCounts.black_culture) s+=sc.black_culture*(tagCounts.black_culture)*3;
+  if(tagCounts.latino) s+=sc.latino*(tagCounts.latino)*2;
+  if(tagCounts.intl) s+=sc.intl*(tagCounts.intl)*2;
+  if(tagCounts.lgbtq) s+=sc.lgbtq*(tagCounts.lgbtq)*2;
+  if(tagCounts.arts) s+=sc.arts*(tagCounts.arts)*2;
+  if(tagCounts.food) s+=sc.food*(tagCounts.food)*2;
+  if(tagCounts.nightlife) s+=sc.nightlife*(tagCounts.nightlife)*2;
+  if(tagCounts.warm) s+=sc.warm*(tagCounts.warm)*2;
+  if(tagCounts.seasons) s+=sc.seasons*(tagCounts.seasons)*2;
+  if(tagCounts.mild) s+=sc.mild*(tagCounts.mild)*2;
+  if(tagCounts.outdoor) s+=sc.outdoor*(tagCounts.outdoor)*2;
+  if(tagCounts.beach) s+=sc.beach*(tagCounts.beach)*3;
+  if(tagCounts.jobs_tech) s+=sc.jobs_tech*(tagCounts.jobs_tech)*3;
+  if(tagCounts.jobs_finance) s+=sc.jobs_finance*(tagCounts.jobs_finance)*3;
+  if(tagCounts.jobs_health) s+=sc.jobs_health*(tagCounts.jobs_health)*3;
+  if(tagCounts.jobs_creative) s+=sc.jobs_creative*(tagCounts.jobs_creative)*3;
+  if(tagCounts.jobs_trades) s+=sc.jobs_trades*(tagCounts.jobs_trades)*3;
+  if(tagCounts.airport) s+=sc.airport*(tagCounts.airport)*2;
+  if(tagCounts.walkable) s+=sc.walkable*(tagCounts.walkable)*3;
+  if(tagCounts.transit) s+=sc.transit*(tagCounts.transit)*3;
+  if(tagCounts.young_professional) s+=sc.young_professional*(tagCounts.young_professional)*2;
+  if(tagCounts.family) s+=sc.family*(tagCounts.family)*2;
+  if(tagCounts.safety_high) s+=sc.safety*6;
+  if(tagCounts.safety_mid) s+=sc.safety*3;
+  s+=sc.cost*budgetLevel;
+  if(avoidTags.includes('avoid_expensive')&&sc.cost<=2) s-=20;
+  if(avoidTags.includes('avoid_cold')&&sc.warm<=2) s-=20;
+  if(avoidTags.includes('avoid_cardep')&&sc.walkable<=2) s-=15;
+  if(avoidTags.includes('avoid_unsafe')&&sc.safety<=2) s-=25;
+  if(avoidTags.includes('avoid_suburban')&&sc.walkable<=2) s-=10;
+  return Math.min(Math.max(Math.round((s/280)*100),18),97);
+}
+
+function computeResults(allAnswers){
+  const tagCounts={};const avoidTags=[];let budgetLevel=3;
+  const budgetMap={'cost_high':5,'cost_mid':4,'cost_low':3};
+  allAnswers.forEach((sel,qi)=>{
+    const q=QUESTIONS[qi];
+    sel.forEach(oi=>{
+      (q.opts[oi].t||[]).forEach(tag=>{
+        if(tag.startsWith('avoid_')) avoidTags.push(tag);
+        else if(budgetMap[tag]!==undefined) budgetLevel=budgetMap[tag];
+        else tagCounts[tag]=(tagCounts[tag]||0)+1;
+      });
+    });
+  });
+  return CITIES.map(c=>({...c,pct:scoreCity(c,tagCounts,avoidTags,budgetLevel)})).sort((a,b)=>b.pct-a.pct);
+}
+
+function dots(val,color){
+  return Array.from({length:5},(_,i)=>`<div class="score-dot" style="background:${i<val?color:'var(--border)'}"></div>`).join('');
+}
+
+let phase='intro',qIdx=0,answers=Array.from({length:QUESTIONS.length},()=>[]),results=null,openCard=0;
+
+function renderIntro(){
+  return`<div class="intro">
+    <div class="city-pills">
+      ${['🍑 Atlanta','🏙️ Charlotte','🤠 Houston','🏛️ DC','🔬 Raleigh','🌴 Miami','🎵 Nashville','⭐ Dallas','🌵 Phoenix','🏙️ Chicago','🏔️ Denver','🌲 Seattle'].map(c=>`<div class="city-pill">${c}</div>`).join('')}
+    </div>
+    <div class="intro-eye">LIFEPATH · CITY FINDER</div>
+    <h1 class="intro-h">Find your<br><span>city.</span></h1>
+    <p class="intro-p">11 questions. 12 US cities scored across cost, culture, walkability, weather, job market, safety, and more.</p>
+    <div class="factor-pills">
+      ${['Cost of Living','Cultural Vibrancy','Black Community','Weather','Walkability','Nightlife','Job Market','Safety','Nature Access','Young Prof. Scene'].map(f=>`<span class="factor-pill">${f}</span>`).join('')}
+    </div>
+    <button class="btn-start" onclick="startQuiz()">FIND MY CITY →</button>
+    <div class="intro-note">11 questions · 12 cities · Free</div>
+  </div>`;
+}
+
+function renderProgress(){
+  const q=QUESTIONS[qIdx];
+  const segs=QUESTIONS.map((_,i)=>{
+    const cls=i<qIdx?'done':i===qIdx?'active':'';
+    return`<div class="progress-seg ${cls}" style="flex:${i===qIdx?4:1}"></div>`;
+  }).join('');
+  return`<div class="progress-wrap">
+    <div class="progress-meta"><span class="progress-cat">${q.cat.toUpperCase()}</span><span class="progress-num">${q.num} / ${QUESTIONS.length}</span></div>
+    <div class="progress-bar">${segs}</div>
+  </div>`;
+}
+
+function renderQuiz(){
+  const q=QUESTIONS[qIdx];const sel=answers[qIdx];const isMulti=q.type==='multi';const max=q.max||99;
+  const instrText=isMulti?`Select up to ${max} <span class="q-sel">· ${sel.length}/${max} selected</span>`:'Choose one';
+  const optHtml=q.opts.map((opt,i)=>{
+    const isOn=sel.includes(i);const isDisabled=isMulti&&!isOn&&sel.length>=max;
+    return`<button class="opt ${isOn?'selected':''} ${isDisabled?'disabled':''}" onclick="toggleOpt(${i})" ${isDisabled?'disabled':''}>
+      <span class="opt-icon">${opt.i}</span><span class="opt-label">${opt.l}</span>
+      <div class="opt-check ${isMulti?'multi':''}">${isOn?'✓':''}</div></button>`;
+  }).join('');
+  return`<div class="quiz-wrap">
+    ${renderProgress()}
+    <div class="q-meta"><span class="q-cat">${q.cat.toUpperCase()}</span><span class="q-num">Q${q.num}</span></div>
+    <h2 class="q-text">${q.q}</h2>
+    <p class="q-instr">${instrText}</p>
+    <div class="opts">${optHtml}</div>
+  </div>
+  <div class="bottom-nav">
+    <button class="btn-back ${qIdx===0?'hidden':''}" onclick="goBack()">← Back</button>
+    <span class="nav-sel">${sel.length>0?sel.length+' selected':'select to continue'}</span>
+    <button class="btn-next ${sel.length===0?'disabled':''}" onclick="goNext()" ${sel.length===0?'disabled':''}>${qIdx+1===QUESTIONS.length?'SEE MY CITIES →':'NEXT →'}</button>
+  </div>`;
+}
+
+function renderCard(city,rank){
+  const isOpen=openCard===rank;const medals=['🥇','🥈','🥉','④'];
+  const scoreKeys=[['Cost of Living','cost'],['Black Community','black_culture'],['Cultural Diversity','intl'],['Walkability','walkable'],['Public Transit','transit'],['Nightlife & Food','nightlife'],['Outdoor Access','outdoor'],['Safety','safety'],['Job Market','jobs_tech'],['Young Prof. Scene','young_professional']];
+  return`<div class="r-card ${isOpen?'open':''}" style="border-color:${isOpen?city.color+'60':'var(--border)'}">
+    <button class="r-header" onclick="toggleCard(${rank})">
+      <div class="r-emoji-wrap" style="background:${city.colorBg};border:1px solid ${city.color}40">${city.emoji}</div>
+      <div class="r-info">
+        <div class="r-name">${rank<3?medals[rank]+' ':''} ${city.name}</div>
+        <div class="r-tag">${city.tagline}</div>
+        <div class="r-vibes">${city.vibes.map(v=>`<span class="r-vibe" style="color:${city.color};border:1px solid ${city.color}30;background:${city.colorBg}">${v}</span>`).join('')}</div>
+      </div>
+      <div class="r-score-wrap"><div class="r-score" style="color:${city.color}">${city.pct}%</div><div class="r-score-lbl">match</div></div>
+      <span class="r-toggle">${isOpen?'▲':'▼'}</span>
+    </button>
+    ${isOpen?`<div class="r-body">
+      <div class="section-lbl" style="margin-top:20px">At a glance</div>
+      <div class="scores-grid">${scoreKeys.map(([lbl,key])=>`<div class="score-row"><span class="score-lbl">${lbl}</span><div class="score-dots">${dots(city.scores[key]||0,city.color)}</div></div>`).join('')}</div>
+      <div class="highlights-grid">
+        <div><div class="hl-col-title">Why it fits</div>${city.highlights.map(h=>`<div class="hl-row"><span class="hl-icon" style="color:${city.color}">✦</span><span class="hl-text">${h}</span></div>`).join('')}</div>
+        <div><div class="hl-col-title">Heads up</div>${city.cons.map(c=>`<div class="hl-row"><span class="hl-icon" style="color:#E84A4A">✕</span><span class="hl-text">${c}</span></div>`).join('')}</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-lbl">Rent Range</div><div class="info-val">${city.rent}</div></div>
+        <div class="info-box"><div class="info-lbl">Climate</div><div class="info-val">${city.climate}</div></div>
+        <div class="info-box"><div class="info-lbl">Transit</div><div class="info-val">${city.transit}</div></div>
+        <div class="info-box"><div class="info-lbl">Vibes</div><div class="info-val">${city.vibes.join(', ')}</div></div>
+      </div>
+      <div class="nbhd-row">
+        <div class="section-lbl">Neighborhoods to explore</div>
+        <div class="nbhd-tags">${city.nbhds.map(n=>`<span class="nbhd-tag" style="color:${city.color};border:1px solid ${city.color}30">${n}</span>`).join('')}</div>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function renderResults(){
+  const top4=results.slice(0,4);const others=results.slice(4,9);
+  return`<div class="results-wrap">
+    <div class="results-eye">YOUR RESULTS</div>
+    <h2 class="results-h">Your cities.</h2>
+    <p class="results-sub">Ranked by how well each city matches what you told us. Tap any city to expand the full breakdown.</p>
+    ${top4.map((c,i)=>renderCard(c,i)).join('')}
+    <div class="others-lbl" style="margin-top:24px">Also worth considering</div>
+    <div class="others-grid">${others.map(c=>`<div class="other-chip"><span class="other-emoji">${c.emoji}</span><div><div class="other-name">${c.name}</div><div class="other-pct">${c.pct}% match</div></div></div>`).join('')}</div>
+    <button class="btn-retake" onclick="restart()">↩ Retake</button>
+  </div>`;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(phase==='intro') app.innerHTML=renderIntro();
+  else if(phase==='quiz') app.innerHTML=renderQuiz();
+  else app.innerHTML=renderResults();
+  window.scrollTo(0,0);
+}
+
+function startQuiz(){phase='quiz';qIdx=0;render();}
+function goBack(){if(qIdx>0){qIdx--;render();}}
+function goNext(){
+  const sel=answers[qIdx];if(sel.length===0)return;
+  if(qIdx+1>=QUESTIONS.length){results=computeResults(answers);phase='results';}
+  else qIdx++;
+  render();
+}
+function toggleOpt(i){
+  const q=QUESTIONS[qIdx];const sel=answers[qIdx];const isMulti=q.type==='multi';
+  if(!isMulti){answers[qIdx]=sel.includes(i)?[]:[i];}
+  else{if(sel.includes(i))answers[qIdx]=sel.filter(x=>x!==i);else if(sel.length<(q.max||99))answers[qIdx]=[...sel,i];}
+  render();
+}
+function toggleCard(rank){openCard=openCard===rank?-1:rank;render();}
+function restart(){phase='intro';qIdx=0;openCard=0;answers=Array.from({length:QUESTIONS.length},()=>[]);results=null;render();}
+render();
+</script>
+</body>
+</html>

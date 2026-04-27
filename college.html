@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>College Decision Quiz · LifePath</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAFAF7;--surface:#F2F0EB;--card:#FFFFFF;--border:#E0DDD6;
+  --ink:#1C1C1C;--inkM:#6B6560;--inkD:#B8B4AC;--inkDim:#d0ccc4;
+  --accent:#1C3D6B;--accentL:#2E5FA3;--accentBg:rgba(28,61,107,0.06);
+  --gold:#C4873A;--goldBg:rgba(196,135,58,0.08);
+  --green:#2A7A52;--greenBg:rgba(42,122,82,0.08);
+  --coral:#C44A3A;
+  --ff:'DM Serif Display',Georgia,serif;
+  --sans:'Plus Jakarta Sans',sans-serif;
+  --mono:'Fira Code',monospace;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.nav-logo{font-family:var(--ff);font-size:18px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-back{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accentL);text-decoration:none;letter-spacing:0.05em}
+.intro{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 60px}
+.intro-eye{font-size:10px;font-family:var(--mono);color:var(--accentL);letter-spacing:0.3em;margin-bottom:20px;text-transform:uppercase}
+.intro-h{font-family:var(--ff);font-size:clamp(44px,9vw,72px);font-weight:400;color:var(--ink);margin-bottom:6px;line-height:1.05;letter-spacing:-0.025em}
+.intro-bar{width:60px;height:3px;background:var(--accent);border-radius:2px;margin:20px 0 24px}
+.intro-p{font-size:17px;color:var(--inkM);line-height:1.8;max-width:460px;margin-bottom:28px}
+.pathway-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:36px;max-width:440px}
+.pathway-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.pathway-icon{font-size:18px}
+.pathway-name{font-size:12px;font-family:var(--mono);color:var(--accentL);font-weight:700}
+.btn-start{background:var(--ink);color:#fff;border:none;padding:15px 36px;border-radius:30px;font-size:14px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em}
+.intro-note{margin-top:14px;font-size:11px;color:var(--inkD);font-family:var(--mono)}
+.intro-note span{color:var(--gold)}
+.progress-wrap{margin-bottom:28px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:8px}
+.progress-cat{font-size:10px;font-family:var(--mono);color:var(--inkM);letter-spacing:0.2em;text-transform:uppercase}
+.progress-num{font-size:10px;font-family:var(--mono);color:var(--inkD)}
+.progress-bar{display:flex;gap:3px}
+.progress-seg{height:3px;border-radius:2px;background:var(--border);transition:all 0.3s}
+.progress-seg.done{background:var(--accent)}
+.progress-seg.active{flex:3;background:var(--accent)}
+.quiz-wrap{padding-top:80px;padding-bottom:120px}
+.q-meta{display:flex;justify-content:space-between;margin-bottom:12px}
+.q-cat{font-size:10px;font-family:var(--mono);color:var(--inkM);letter-spacing:0.2em;text-transform:uppercase}
+.q-num{font-size:10px;font-family:var(--mono);color:var(--inkD)}
+.q-text{font-family:var(--ff);font-size:clamp(20px,4vw,28px);font-weight:400;color:var(--ink);margin-bottom:6px;line-height:1.3;letter-spacing:-0.015em}
+.q-instr{font-size:11px;color:var(--inkD);font-family:var(--mono);margin-bottom:20px;letter-spacing:0.05em}
+.q-sel{color:var(--accent)}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.opt{display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;font-family:var(--sans)}
+.opt:hover{border-color:var(--ink)}
+.opt.selected{background:var(--accentBg);border-color:var(--accent)}
+.opt-icon{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.opt-label{font-size:14px;color:var(--ink);flex:1;line-height:1.4;font-weight:400}
+.opt.selected .opt-label{color:var(--accentL);font-weight:500}
+.opt-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all 0.15s}
+.opt-check.multi{border-radius:4px}
+.opt.selected .opt-check{background:var(--accent);border-color:var(--accent)}
+.opt.disabled{opacity:0.35;cursor:not-allowed}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(250,250,247,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:14px 20px 24px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.btn-back{background:none;border:1px solid var(--border);color:var(--inkM);font-family:var(--mono);font-size:12px;cursor:pointer;padding:9px 18px;border-radius:20px}
+.btn-back.hidden{opacity:0;pointer-events:none}
+.nav-sel{font-size:11px;color:var(--inkD);font-family:var(--mono)}
+.btn-next{background:var(--ink);border:none;color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em;transition:all 0.15s}
+.btn-next.disabled{background:var(--border);color:var(--inkD);cursor:default}
+.gate-wrap{padding:40px 0}
+.gate-eye{font-size:36px;text-align:center;margin-bottom:16px}
+.gate-h{font-family:var(--ff);font-size:clamp(24px,5vw,36px);font-weight:400;color:var(--ink);margin-bottom:12px;letter-spacing:-0.02em;text-align:center}
+.gate-p{font-size:15px;color:var(--inkM);line-height:1.7;max-width:420px;margin:0 auto 32px;text-align:center}
+.gate-card{background:linear-gradient(135deg,#F5F0E8,#EDE8DC);border:1.5px solid rgba(196,135,58,0.3);border-radius:16px;padding:24px;margin-bottom:20px}
+.gate-card-eye{font-size:10px;font-family:var(--mono);color:var(--gold);letter-spacing:0.2em;margin-bottom:8px;text-transform:uppercase}
+.gate-card-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:14px}
+.gate-feat{display:flex;gap:10px;margin-bottom:8px;align-items:center;font-size:13px;color:var(--inkM)}
+.gate-feat-check{color:var(--gold);font-size:12px;flex-shrink:0}
+.btn-upgrade{width:100%;margin-top:16px;background:var(--gold);border:none;color:#fff;padding:14px;border-radius:10px;font-size:14px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em}
+.btn-free-results{width:100%;background:transparent;border:1.5px solid var(--border);color:var(--inkM);padding:13px;border-radius:10px;font-size:13px;font-family:var(--mono);cursor:pointer;letter-spacing:0.05em}
+.results-wrap{padding-top:80px;padding-bottom:60px}
+.results-eye{font-size:10px;font-family:var(--mono);color:var(--accentL);letter-spacing:0.25em;margin-bottom:12px;text-transform:uppercase}
+.results-h{font-family:var(--ff);font-size:clamp(32px,6vw,52px);font-weight:400;color:var(--ink);margin-bottom:12px;letter-spacing:-0.025em;line-height:1}
+.results-sub{font-size:14px;color:var(--inkM);line-height:1.7;margin-bottom:32px}
+.r-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px;transition:all 0.2s}
+.r-card.open{box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+.r-header{width:100%;background:none;border:none;cursor:pointer;padding:20px 24px;text-align:left;display:flex;align-items:center;gap:14px;font-family:var(--sans)}
+.r-icon{width:50px;height:50px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.r-info{flex:1}
+.r-badges{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.r-badge{font-size:9px;font-family:var(--mono);font-weight:700;letter-spacing:0.12em;padding:2px 8px;border-radius:10px}
+.r-title{font-size:17px;font-weight:600;color:var(--ink);font-family:var(--sans)}
+.r-hl{font-size:12px;color:var(--inkM);font-family:var(--mono);margin-top:2px}
+.r-score-wrap{text-align:right;flex-shrink:0}
+.r-score{font-size:28px;font-weight:700;font-family:var(--mono);line-height:1}
+.r-score-lbl{font-size:9px;color:var(--inkD);font-family:var(--mono)}
+.r-toggle{color:var(--inkD);font-size:12px;margin-left:4px}
+.r-body{padding:4px 24px 28px;border-top:1px solid var(--border)}
+.r-summary{font-size:14px;color:var(--inkM);line-height:1.8;margin:18px 0 20px;border-left:3px solid;padding-left:14px}
+.section-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.18em;color:var(--inkD);margin-bottom:10px;text-transform:uppercase}
+.why-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.why-dot{font-size:10px;margin-top:3px;flex-shrink:0}
+.why-text{font-size:13px;color:var(--inkM);line-height:1.5}
+.entry-row{padding:12px 14px;border-radius:8px;margin-bottom:4px}
+.entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.entry-title{font-size:14px;color:var(--ink);font-weight:500}
+.entry-sal{font-size:12px;font-family:var(--mono);font-weight:700}
+.entry-time{font-size:11px;color:var(--inkM);font-family:var(--mono);margin-top:3px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;margin-top:16px}
+.info-box{background:var(--surface);border-radius:10px;padding:12px 14px}
+.info-lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.12em;color:var(--inkD);margin-bottom:5px;text-transform:uppercase}
+.info-val{font-size:12px;color:var(--inkM);line-height:1.5}
+.school-chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.school-chip{font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:16px}
+.watch-box{border-radius:10px;padding:12px 16px}
+.watch-kw{font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:0.12em}
+.watch-txt{font-size:13px;color:var(--inkM);line-height:1.6}
+.school-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:8px;transition:all 0.2s}
+.school-header{width:100%;background:none;border:none;cursor:pointer;padding:16px 20px;text-align:left;display:flex;align-items:center;gap:12px;font-family:var(--sans)}
+.school-rank{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:var(--mono);font-weight:700;color:var(--accentL);background:var(--accentBg)}
+.school-info{flex:1}
+.school-name{font-size:15px;font-weight:600;color:var(--ink);font-family:var(--sans)}
+.school-meta{font-size:11px;color:var(--inkM);font-family:var(--mono)}
+.school-price{text-align:right;flex-shrink:0}
+.school-net{font-size:13px;font-weight:700;color:var(--green);font-family:var(--mono)}
+.school-net-lbl{font-size:9px;color:var(--inkD);font-family:var(--mono)}
+.school-body{padding:4px 20px 20px;border-top:1px solid var(--border)}
+.school-note{font-size:13px;color:var(--inkM);line-height:1.7;margin:12px 0;font-style:italic}
+.school-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:var(--surface);border-radius:8px;padding:10px 12px}
+.stat-lbl{font-size:9px;font-family:var(--mono);color:var(--inkD);letter-spacing:0.1em;margin-bottom:3px;text-transform:uppercase}
+.stat-val{font-size:12px;color:var(--ink);font-family:var(--mono);font-weight:700}
+.strength-tags{display:flex;flex-wrap:wrap;gap:6px}
+.strength-tag{font-size:11px;font-family:var(--mono);color:var(--accentL);border:1px solid rgba(28,61,107,0.2);padding:3px 10px;border-radius:12px}
+.upgrade-cta{background:linear-gradient(135deg,#F5F0E8,#EDE8DC);border:1.5px solid rgba(196,135,58,0.3);border-radius:14px;padding:20px 22px;margin:8px 0 20px}
+.upgrade-eye{font-size:10px;font-family:var(--mono);color:var(--gold);letter-spacing:0.18em;margin-bottom:8px;text-transform:uppercase}
+.upgrade-txt{font-size:14px;color:var(--inkM);line-height:1.6;margin-bottom:14px}
+.btn-upgrade-sm{background:var(--gold);border:none;color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;font-family:var(--mono);font-weight:700;cursor:pointer;letter-spacing:0.06em}
+.btn-retake{background:none;border:1px solid var(--border);color:var(--inkM);font-size:12px;font-family:var(--mono);cursor:pointer;padding:10px 24px;border-radius:20px;letter-spacing:0.08em;margin-top:8px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="/">✦ LifePath</a>
+  <a class="nav-back" href="/">← Back</a>
+</nav>
+<div class="wrap" id="app"></div>
+<script>
+const FREE_QS=[
+  {id:"situation",num:1,cat:"Where You Are",q:"What's your current situation?",type:"single",
+   opts:[{l:"High school junior — planning ahead",i:"📚",t:["junior","planning"]},{l:"High school senior — deciding now",i:"⏰",t:["senior","urgent"]},{l:"Currently in college — considering transferring",i:"🔄",t:["transfer"]},{l:"Taking a gap year — deciding what's next",i:"🌍",t:["gap_year"]},{l:"Adult learner returning to school",i:"💼",t:["adult"]}]},
+  {id:"goal",num:2,cat:"Your Why",q:"What's your primary goal after getting your degree?",type:"single",
+   opts:[{l:"Land a specific high-paying job as fast as possible",i:"💰",t:["career_fast","roi"]},{l:"Build a career in a field I'm genuinely passionate about",i:"🔥",t:["passion"]},{l:"Start a business or work for myself eventually",i:"🚀",t:["entrepreneur"]},{l:"Go to grad or professional school (law, med, MBA)",i:"🎓",t:["grad_school","prestige"]},{l:"I'm not sure yet — I want to explore",i:"🧭",t:["explorer"]},{l:"Give back through public service or social impact",i:"🌍",t:["service"]}]},
+  {id:"interest",num:3,cat:"Your Why",q:"What are you genuinely interested in studying?",type:"multi",max:3,
+   opts:[{l:"STEM — science, tech, engineering, math",i:"🔬",t:["stem","high_demand"]},{l:"Business, finance, or entrepreneurship",i:"📊",t:["business","roi"]},{l:"Healthcare or pre-med",i:"🏥",t:["healthcare","grad_school"]},{l:"Arts, design, or media",i:"🎨",t:["arts","creative"]},{l:"Social sciences or humanities",i:"📖",t:["humanities","grad_school"]},{l:"Law, criminal justice, or policy",i:"⚖️",t:["law","grad_school"]},{l:"Education or social work",i:"🤝",t:["service"]},{l:"Trades, technical, or vocational",i:"🔧",t:["trade","no_debt"]},{l:"I have no idea yet",i:"🤷",t:["explorer","liberal_arts"]}]},
+  {id:"finances",num:4,cat:"The Money",q:"What's your financial situation going into this decision?",type:"single",
+   opts:[{l:"I need the most affordable option — debt is a real concern",i:"🟢",t:["budget_tight","no_debt","community_college"]},{l:"I have some aid but cost still matters a lot",i:"🟡",t:["budget_mid","in_state"]},{l:"Strong aid or family support — cost is less of a concern",i:"🟠",t:["budget_ok","prestige"]},{l:"Willing to take on debt if the school is worth it",i:"🔵",t:["debt_ok","prestige","roi"]},{l:"I want zero debt — work-first or trade routes interest me",i:"🔴",t:["no_debt","trade"]}]},
+  {id:"experience",num:5,cat:"What You Want",q:"How important is the full college experience — campus life, social scene?",type:"single",
+   opts:[{l:"Very important — I want the full experience",i:"🎉",t:["campus_life","large_school"]},{l:"Somewhat — I want balance of academics and social life",i:"⚖️",t:["balanced"]},{l:"Not that important — focused on degree and career",i:"🎯",t:["career_focused"]},{l:"Irrelevant — I just need the credential or skill",i:"📋",t:["credential_only","community_college","online"]}]},
+  {id:"hbcu",num:6,cat:"What You Want",q:"How do you feel about HBCUs?",type:"single",
+   opts:[{l:"It's a priority — I specifically want to attend an HBCU",i:"✊",t:["hbcu_strong"]},{l:"Very open to HBCUs — want to know more",i:"💡",t:["hbcu_open"]},{l:"I'd consider one if it's the best fit academically and financially",i:"🤔",t:["hbcu_consider"]},{l:"Not focused on HBCUs — other factors matter more",i:"➡️",t:["hbcu_neutral"]},{l:"Not sure what HBCUs offer — open to learning",i:"🔍",t:["hbcu_curious"]}]},
+  {id:"reputation",num:7,cat:"What You Want",q:"How important is the school's name and reputation?",type:"single",
+   opts:[{l:"Very important — I want a name that opens doors",i:"🏆",t:["prestige","grad_school"]},{l:"Somewhat — reputation matters but fit matters more",i:"📊",t:["balanced","fit"]},{l:"Not very important — I care about outcome not prestige",i:"🎯",t:["outcome_focused","roi"]},{l:"Completely irrelevant — going for skill and certification",i:"🔧",t:["trade","community_college"]}]},
+  {id:"learning",num:8,cat:"How You Learn",q:"What kind of learning environment fits you best?",type:"multi",max:3,
+   opts:[{l:"Small classes — professors know my name",i:"👥",t:["small_school","liberal_arts"]},{l:"Strong research and academic rigor",i:"🔬",t:["research","prestige"]},{l:"Hands-on, practical, project-based learning",i:"🛠️",t:["applied","trade","stem"]},{l:"Flexible or online options — fits around my schedule",i:"💻",t:["online","flexible","adult"]},{l:"Strong internship and career placement programs",i:"💼",t:["career_focused","roi"]},{l:"Competitive environment that pushes me hard",i:"⚡",t:["prestige","driven"]},{l:"Supportive and nurturing community",i:"🤝",t:["support","hbcu_open","small_school"]}]},
+  {id:"concerns",num:9,cat:"Your Concerns",q:"What concerns you most about this decision?",type:"multi",max:3,
+   opts:[{l:"Taking on too much student debt",i:"💸",t:["debt_concern","no_debt","community_college"]},{l:"Choosing the wrong major and wasting time or money",i:"🔀",t:["explorer","liberal_arts"]},{l:"Not getting into the schools I want",i:"📉",t:["realistic"]},{l:"Feeling out of place or not belonging",i:"🫂",t:["belonging","hbcu_open","small_school"]},{l:"Not being prepared for college-level work",i:"📚",t:["support","community_college"]},{l:"Wasting time in college when I could be earning",i:"⏱️",t:["trade","roi"]},{l:"Making a decision that disappoints people close to me",i:"❤️",t:["pressure"]},{l:"AI and automation making my degree less valuable",i:"🤖",t:["stem","trade"]}]},
+  {id:"timeline",num:10,cat:"Your Path",q:"How quickly do you want to be earning a real income?",type:"single",
+   opts:[{l:"ASAP — I want income within 1–2 years",i:"⚡",t:["trade","community_college","fast_track"]},{l:"2–3 years — open to associate degree or transfer path",i:"📅",t:["community_college","transfer"]},{l:"4 years — standard bachelor's degree timeline",i:"🎓",t:["four_year"]},{l:"5+ years — investing in a longer path (grad school, med, law)",i:"🏛️",t:["grad_school","prestige","long_term"]},{l:"Flexible — I'll take as long as the right path requires",i:"🌊",t:["flexible"]}]}
+];
+
+const PREMIUM_QS=[
+  {id:"gpa",num:11,cat:"Your Profile",q:"What's your honest GPA right now?",type:"single",
+   opts:[{l:"3.7 or above — strong academic record",i:"⭐",t:["gpa_high"]},{l:"3.0–3.6 — solid, competitive for most schools",i:"✅",t:["gpa_mid"]},{l:"2.5–2.9 — need to be strategic about options",i:"📊",t:["gpa_low"]},{l:"Below 2.5 — need schools that look beyond GPA",i:"🔄",t:["gpa_rebuild"]},{l:"Non-traditional — GPA isn't my full story",i:"💪",t:["non_trad"]}]},
+  {id:"test",num:12,cat:"Your Profile",q:"What's your SAT or ACT score situation?",type:"single",
+   opts:[{l:"1400+ SAT / 31+ ACT — strong scores",i:"🏆",t:["test_high"]},{l:"1200–1399 SAT / 26–30 ACT — solid scores",i:"✅",t:["test_mid"]},{l:"1000–1199 SAT / 20–25 ACT — average range",i:"📊",t:["test_avg"]},{l:"Below 1000 SAT / below 20 ACT",i:"📈",t:["test_low"]},{l:"Haven't taken it yet or going test-optional",i:"🔓",t:["test_opt"]}]},
+  {id:"region",num:13,cat:"Your Profile",q:"What region of the US are you in?",type:"single",
+   opts:[{l:"Southeast (GA, NC, SC, VA, TN, FL, AL, MS)",i:"🍑",t:["region_se"]},{l:"Northeast (NY, NJ, PA, MD, DC, MA, CT)",i:"🗽",t:["region_ne"]},{l:"South / Texas (TX, LA, OK, AR)",i:"⭐",t:["region_s"]},{l:"Midwest (IL, OH, MI, MO, IN, MN)",i:"🌽",t:["region_mw"]},{l:"West / Southwest (CA, AZ, CO, WA, OR, NV)",i:"🌵",t:["region_w"]},{l:"Open to any region",i:"🌍",t:["region_any"]}]},
+  {id:"aid",num:14,cat:"The Money",q:"What's your expected financial aid situation?",type:"multi",max:3,
+   opts:[{l:"Pell Grant eligible — EFC is $0",i:"💚",t:["pell","need_based"]},{l:"Some family support — under $10K/year",i:"💛",t:["limited_support"]},{l:"Moderate family support — $10–25K/year",i:"🟠",t:["moderate_support"]},{l:"Strong family support — $25K+/year",i:"🔵",t:["strong_support"]},{l:"Counting on merit scholarships",i:"🏆",t:["merit"]},{l:"Haven't done FAFSA yet",i:"📋",t:["fafsa_pending"]}]},
+  {id:"debt_limit",num:15,cat:"The Money",q:"What's the maximum debt you're comfortable graduating with?",type:"single",
+   opts:[{l:"Zero — I want to graduate completely debt free",i:"🎯",t:["no_debt"]},{l:"Under $15K — minimal debt only",i:"✅",t:["low_debt"]},{l:"$15–30K — acceptable if the degree delivers",i:"📊",t:["mid_debt"]},{l:"$30–50K — willing to invest with clear ROI",i:"📈",t:["high_debt"]},{l:"$50K+ — committed to the school regardless",i:"🏛️",t:["max_debt"]}]}
+];
+
+const PATHWAYS=[
+  {id:"hbcu",title:"HBCU Track",headline:"Culture, community, and credentials — all in one.",icon:"✊",color:"#1C3D6B",accent:"#2E5FA3",accentBg:"rgba(28,61,107,0.07)",
+   summary:"HBCUs offer something most schools cannot — an environment where Black excellence is the default, not the exception. Academically rigorous, deeply networked, and increasingly well-funded, HBCUs produce a disproportionate share of Black professionals, doctors, lawyers, and executives.",
+   why:["Network effect is real — HBCU alumni networks punch far above their size","Strong financial aid — many HBCUs have generous need-based packages","Culture of belonging that directly impacts graduation rates and outcomes","Graduate school pipeline — HBCUs produce more Black PhD candidates than any other school type"],
+   schools:["Howard University (DC)","Spelman College (GA)","Morehouse College (GA)","Hampton University (VA)","NC A&T (NC)","FAMU (FL)","Clark Atlanta University (GA)","Xavier University of Louisiana"],
+   cost:"$18,000–$35,000/year (before aid)",aid:"Many HBCUs meet 100% of demonstrated need. HBCU-specific scholarships are widely available.",time:"4 years to bachelor's degree",outcomes:"Strong pipeline to healthcare, law, business, STEM, and public service careers",watch:"Funding and resources vary significantly between HBCUs — research each school's specific programs in your field.",
+   tags:["hbcu_strong","hbcu_open","hbcu_consider","hbcu_curious","belonging","support"]},
+  {id:"state_value",title:"State Flagship / In-State Value",headline:"Maximum ROI. Legitimate credential. Manageable debt.",icon:"🏛️",color:"#2A7A52",accent:"#3DAF78",accentBg:"rgba(42,122,82,0.07)",
+   summary:"State flagship universities offer a genuine combination of academic quality, career placement, and affordability that private schools often cannot match once you factor in aid. In-state tuition is one of the most underrated financial advantages available.",
+   why:["In-state tuition can be 60-70% cheaper than comparable private schools","State flagships have strong employer relationships in their regions","Large alumni networks — being from the state flagship matters locally","Research opportunities and grad school preparation at flagship universities"],
+   schools:["University of North Carolina","University of Florida","Georgia Tech / UGA","UT Austin","University of Michigan","Ohio State","UCLA / UC Berkeley","University of Maryland"],
+   cost:"$10,000–$22,000/year in-state (before aid)",aid:"In-state aid programs, merit scholarships, and federal aid can bring this significantly lower.",time:"4 years to bachelor's degree",outcomes:"Strong across all fields — especially business, STEM, healthcare, and law",watch:"Large universities can feel anonymous. Find your community early — clubs, organizations, and smaller programs within the university.",
+   tags:["in_state","budget_mid","budget_tight","roi","outcome_focused","four_year","balanced"]},
+  {id:"community_transfer",title:"Community College to Transfer",headline:"The smartest financial play most people overlook.",icon:"🔀",color:"#C4873A",accent:"#D9A050",accentBg:"rgba(196,135,58,0.07)",
+   summary:"Start at a community college, transfer to a 4-year university, graduate with the same degree for a fraction of the cost. This path is used by millions of successful professionals — and it works especially well if you are not sure what you want to study or need time to build your GPA.",
+   why:["Save $20,000–$40,000 on the first two years of your education","Time to figure out your major before committing to a 4-year school","Guaranteed transfer agreements with state universities in most states","Strong path for adult learners, working students, or anyone with a rocky academic start"],
+   schools:["Any community college to State university transfer","Northern Virginia CC to University of Virginia","Miami Dade College to University of Florida","De Anza College to UC System","Montgomery College to University of Maryland"],
+   cost:"$3,000–$8,000/year for community college",aid:"Pell Grant covers most or all community college costs for eligible students. Transfer merit scholarships often available.",time:"2 years CC + 2 years university = 4 years total",outcomes:"Graduate with a full 4-year degree — employers see the final degree, not where you started",watch:"Transfer planning requires intentionality — take the right courses from day one. Meet with a transfer counselor early.",
+   tags:["community_college","budget_tight","no_debt","transfer","debt_concern","explorer","fast_track"]},
+  {id:"trade",title:"Trade / Technical Program",headline:"The highest ROI path that nobody talks about enough.",icon:"⚡",color:"#6B3A8A",accent:"#9B60C4",accentBg:"rgba(107,58,138,0.07)",
+   summary:"Skilled trades and technical certifications are producing some of the strongest income and job security numbers of any career path — often in 12–24 months, with zero or minimal debt. Electricians, HVAC technicians, welders, and coders are all in short supply and commanding serious salaries.",
+   why:["Earn $50,000–$100,000+ without a 4-year degree or significant debt","Job security — AI cannot replace skilled hands-on work","Apprenticeship programs pay you while you learn","Clear path from employee to business owner"],
+   schools:["Lincoln Tech","Universal Technical Institute (UTI)","Local union apprenticeship programs","Coding bootcamps (General Assembly, Flatiron)","Community college vocational programs"],
+   cost:"$3,000–$20,000 total (some apprenticeships are free)",aid:"Pell Grants apply to many technical programs. Apprenticeships often include wages during training.",time:"6 months to 2 years depending on program",outcomes:"Electrician, HVAC tech, welder, plumber, coder, medical coder, dental hygienist — all $40K–$100K+",watch:"Research program quality carefully — not all trade schools are created equal. Prefer union apprenticeships or community college programs over for-profit trade schools.",
+   tags:["trade","no_debt","fast_track","credential_only","roi"]},
+  {id:"competitive",title:"Competitive University Track",headline:"Reach high. The network and brand are worth the investment.",icon:"🏆",color:"#C44A3A",accent:"#E06A58",accentBg:"rgba(196,74,58,0.07)",
+   summary:"For students with strong academic profiles aiming for grad school, top corporate recruiters, or highly competitive fields — the name, network, and rigor of a competitive university can make a real difference in outcomes. The key is being strategic about financing it.",
+   why:["Top employer recruiting happens almost exclusively at competitive universities","Alumni networks at elite schools open doors decades into your career","Strong scholarship opportunities for high-achieving students","Best preparation if graduate or professional school is the goal"],
+   schools:["Georgetown, Vanderbilt, Wake Forest (private competitive)","Morehouse, Spelman, Howard (HBCU competitive tier)","Michigan, UNC, UCLA (public competitive)","Duke, Emory, Northwestern, NYU"],
+   cost:"$35,000–$65,000/year (before aid — many meet 100% of need)",aid:"Many highly selective schools meet 100% of demonstrated financial need. Apply regardless of sticker price.",time:"4 years to bachelor's degree",outcomes:"Investment banking, consulting, law, medicine, tech leadership — highest ceiling career paths",watch:"Do not take on $200K in debt for an average outcome. Only worth it if financial aid makes it comparable to state school costs.",
+   tags:["prestige","grad_school","driven","research","career_fast"]},
+  {id:"liberal_arts",title:"Liberal Arts College",headline:"Small, intimate, and built for people who aren't sure yet.",icon:"📖",color:"#2A7A8A",accent:"#3AAAC4",accentBg:"rgba(42,122,138,0.07)",
+   summary:"Liberal arts colleges offer something most universities do not — small classes, genuine faculty mentorship, and a broad education that builds the critical thinking, communication, and adaptability that employers increasingly value. Perfect for students still figuring out their direction.",
+   why:["Professors know your name — real mentorship relationships","Flexible curriculum lets you explore before committing to a path","Surprisingly strong post-graduate outcomes relative to school size","Excellent for pre-law, pre-med, and any field where critical thinking is paramount"],
+   schools:["Spelman College (HBCU)","Howard University (HBCU)","Oberlin","Vassar","Davidson","Kenyon","Wesleyan","Bates"],
+   cost:"$25,000–$60,000/year (before aid — very generous with need-based aid)",aid:"Most liberal arts colleges have large endowments and give generous need-based aid. Often cheaper than state schools for lower-income families.",time:"4 years to bachelor's degree",outcomes:"Broad career preparation — law, medicine, education, business, nonprofit, graduate school",watch:"Career placement support varies widely. Research career services before committing.",
+   tags:["small_school","liberal_arts","explorer","humanities","support","belonging","fit"]}
+];
+
+const SCHOOL_DB=[
+  {name:"Howard University",loc:"Washington, DC",type:"HBCU",tags:["hbcu_strong","hbcu_open","gpa_high","gpa_mid","prestige","grad_school","region_ne","region_any"],tuition:"$30,000/yr",net:"$14,000/yr avg after aid",accept:"42%",strengths:["Law","Medicine","Business","Journalism"],note:"The flagship HBCU — unmatched alumni network in DC and nationally"},
+  {name:"Spelman College",loc:"Atlanta, GA",type:"HBCU Women's",tags:["hbcu_strong","hbcu_open","gpa_high","gpa_mid","region_se","region_any","small_school"],tuition:"$28,000/yr",net:"$12,000/yr avg after aid",accept:"34%",strengths:["STEM","Pre-Med","Social Sciences","Arts"],note:"#1 HBCU for women — extraordinary grad school pipeline"},
+  {name:"Morehouse College",loc:"Atlanta, GA",type:"HBCU Men's",tags:["hbcu_strong","hbcu_open","gpa_high","gpa_mid","region_se","region_any","small_school"],tuition:"$28,000/yr",net:"$13,000/yr avg after aid",accept:"58%",strengths:["Business","Pre-Med","Humanities","Law"],note:"Most prestigious HBCU for men — elite alumni network"},
+  {name:"NC A&T State University",loc:"Greensboro, NC",type:"HBCU",tags:["hbcu_strong","hbcu_open","hbcu_consider","gpa_mid","gpa_low","region_se","budget_tight","stem"],tuition:"$7,500/yr in-state",net:"$5,000/yr avg after aid",accept:"64%",strengths:["Engineering","Agriculture","Business","STEM"],note:"Largest HBCU in the US — massive engineering program, very affordable"},
+  {name:"Florida A&M University",loc:"Tallahassee, FL",type:"HBCU",tags:["hbcu_strong","hbcu_open","gpa_mid","region_se","budget_tight","business"],tuition:"$5,800/yr in-state",net:"$4,200/yr avg after aid",accept:"32%",strengths:["Pharmacy","Business","Law","Engineering"],note:"Top pharmacy and business programs — very affordable in-state"},
+  {name:"Hampton University",loc:"Hampton, VA",type:"HBCU",tags:["hbcu_strong","hbcu_open","hbcu_consider","gpa_mid","region_se","region_ne"],tuition:"$26,000/yr",net:"$11,000/yr avg after aid",accept:"33%",strengths:["Business","Nursing","Architecture","Sciences"],note:"Beautiful waterfront campus — strong professional programs"},
+  {name:"Xavier University of Louisiana",loc:"New Orleans, LA",type:"HBCU",tags:["hbcu_strong","hbcu_open","gpa_high","gpa_mid","region_s","healthcare","grad_school"],tuition:"$24,000/yr",net:"$10,000/yr avg after aid",accept:"65%",strengths:["Pre-Med","Pharmacy","Biology","Chemistry"],note:"#1 in placing Black students into med school — incredible pre-med program"},
+  {name:"Clark Atlanta University",loc:"Atlanta, GA",type:"HBCU",tags:["hbcu_strong","hbcu_open","hbcu_consider","gpa_mid","gpa_low","region_se","business"],tuition:"$25,000/yr",net:"$9,000/yr avg after aid",accept:"43%",strengths:["Business","Communications","Social Work","Arts"],note:"Part of Atlanta University Center — access to all AUC resources"},
+  {name:"University of North Carolina",loc:"Chapel Hill, NC",type:"Public Flagship",tags:["in_state","region_se","gpa_high","gpa_mid","prestige","balanced"],tuition:"$9,000/yr in-state",net:"$6,500/yr avg after aid",accept:"17%",strengths:["Business","Journalism","Pre-Med","Public Health"],note:"Public Ivy — nationally respected degree, excellent value in-state"},
+  {name:"Georgia Tech / UGA",loc:"Atlanta, GA",type:"Public Flagship",tags:["in_state","region_se","gpa_high","stem","career_fast","roi"],tuition:"$12,000/yr in-state",net:"$9,000/yr avg after aid",accept:"17%",strengths:["Engineering","Computer Science","Business","Architecture"],note:"Top 5 engineering school — elite recruiting pipeline to tech and finance"},
+  {name:"University of Florida",loc:"Gainesville, FL",type:"Public Flagship",tags:["in_state","region_se","gpa_high","gpa_mid","balanced","large_school"],tuition:"$6,200/yr in-state",net:"$4,800/yr avg after aid",accept:"23%",strengths:["Business","Engineering","Pre-Med","Agriculture"],note:"One of the best public university values in the country"},
+  {name:"UT Austin",loc:"Austin, TX",type:"Public Flagship",tags:["in_state","region_s","gpa_high","gpa_mid","business","stem","career_fast"],tuition:"$11,000/yr in-state",net:"$8,000/yr avg after aid",accept:"29%",strengths:["Business","Engineering","Liberal Arts","Law"],note:"Texas's elite public — strong recruiting from tech and energy sectors"},
+  {name:"University of Maryland",loc:"College Park, MD",type:"Public Flagship",tags:["in_state","region_ne","gpa_high","gpa_mid","stem","business"],tuition:"$10,000/yr in-state",net:"$7,500/yr avg after aid",accept:"44%",strengths:["Computer Science","Business","Engineering","Public Policy"],note:"Close to DC — excellent internship and government job access"},
+  {name:"Emory University",loc:"Atlanta, GA",type:"Private Research",tags:["prestige","region_se","gpa_high","grad_school","healthcare"],tuition:"$56,000/yr",net:"$22,000/yr avg after aid",accept:"11%",strengths:["Pre-Med","Business","Law","Public Health"],note:"Strong financial aid — meets 100% of demonstrated need"},
+  {name:"Georgetown University",loc:"Washington, DC",type:"Private Research",tags:["prestige","region_ne","gpa_high","law","grad_school"],tuition:"$58,000/yr",net:"$28,000/yr avg after aid",accept:"12%",strengths:["International Relations","Law","Business","Pre-Med"],note:"Best school for law and international careers — DC network unmatched"},
+  {name:"Vanderbilt University",loc:"Nashville, TN",type:"Private Research",tags:["prestige","region_se","gpa_high","grad_school","balanced"],tuition:"$58,000/yr",net:"$17,000/yr avg after aid",accept:"7%",strengths:["Medicine","Engineering","Education","Business"],note:"Meets 100% of need — one of the most generous financial aid packages in the country"},
+  {name:"Wake Forest University",loc:"Winston-Salem, NC",type:"Private Research",tags:["prestige","region_se","gpa_high","gpa_mid","business","balanced","small_school"],tuition:"$60,000/yr",net:"$25,000/yr avg after aid",accept:"21%",strengths:["Business","Pre-Med","Law","Communications"],note:"Strong MBA and law school feeder — excellent career placement"},
+  {name:"CC to State University Transfer",loc:"Your State",type:"CC to Transfer",tags:["community_college","transfer","budget_tight","no_debt","pell"],tuition:"$3,000-$5,000/yr CC",net:"$0-$2,000/yr for Pell recipients",accept:"Open enrollment",strengths:["Any major","Business","Healthcare","Technology"],note:"Guaranteed transfer to state universities with qualifying GPA. Save $20K-$40K on first two years."}
+];
+
+function scorePathways(allAnswers,allQs){
+  const tagCounts={};
+  allAnswers.forEach((sel,qi)=>{
+    const q=allQs[qi];if(!q)return;
+    sel.forEach(oi=>{(q.opts[oi]?.t||[]).forEach(tag=>{tagCounts[tag]=(tagCounts[tag]||0)+1;});});
+  });
+  return PATHWAYS.map(p=>{
+    let s=0;
+    p.tags.forEach(tag=>{s+=(tagCounts[tag]||0)*2;});
+    const max=p.tags.length*2*3;
+    const pct=Math.min(Math.max(Math.round((s/max)*100),22),97);
+    return{...p,score:pct};
+  }).sort((a,b)=>b.score-a.score);
+}
+
+function scoreSchools(allAnswers){
+  const allTags=[];
+  const allQs=[...FREE_QS,...PREMIUM_QS];
+  allAnswers.forEach((sel,qi)=>{
+    const q=allQs[qi];if(!q)return;
+    sel.forEach(oi=>{allTags.push(...(q.opts[oi]?.t||[]));});
+  });
+  const tagCounts={};
+  allTags.forEach(t=>{tagCounts[t]=(tagCounts[t]||0)+1;});
+  return SCHOOL_DB.map(school=>{
+    let s=0;
+    school.tags.forEach(tag=>{s+=(tagCounts[tag]||0)*3;});
+    return{...school,score:s};
+  }).sort((a,b)=>b.score-a.score).slice(0,8);
+}
+
+let phase='intro',qIdx=0;
+const FREE_LEN=FREE_QS.length;
+const PREM_LEN=PREMIUM_QS.length;
+let freeAnswers=Array.from({length:FREE_LEN},()=>[]);
+let premAnswers=Array.from({length:PREM_LEN},()=>[]);
+let pathways=null,schools=null,openCard=0,openSchool=0;
+const isPrem=()=>phase==='prem_quiz';
+const currentQ=()=>isPrem()?PREMIUM_QS[qIdx]:FREE_QS[qIdx];
+const currentSel=()=>isPrem()?premAnswers[qIdx]:freeAnswers[qIdx];
+const currentMax=()=>isPrem()?PREM_LEN:FREE_LEN;
+
+function renderIntro(){
+  return`<div class="intro">
+    <div class="intro-eye">LIFEPATH · COLLEGE DECISION</div>
+    <h1 class="intro-h">Find your<br>right path.</h1>
+    <div class="intro-bar"></div>
+    <p class="intro-p">10 questions that match you to the college pathway that actually fits your goals, finances, and life. Premium users get specific school recommendations with real financial aid data.</p>
+    <div class="pathway-grid">
+      ${[['✊','HBCU Track'],['🏛️','State Flagship'],['🔀','CC to Transfer'],['⚡','Trade / Technical'],['🏆','Competitive Univ.'],['📖','Liberal Arts']].map(([icon,name])=>`<div class="pathway-chip"><span class="pathway-icon">${icon}</span><span class="pathway-name">${name}</span></div>`).join('')}
+    </div>
+    <button class="btn-start" onclick="startFree()">START FREE QUIZ →</button>
+    <div class="intro-note">10 questions free &nbsp;·&nbsp; <span>+5 questions for school recommendations (Premium)</span></div>
+  </div>`;
+}
+
+function renderProgress(){
+  const q=currentQ();const total=currentMax();const isPremium=isPrem();
+  const segs=Array.from({length:total},(_,i)=>{
+    const cls=i<qIdx?'done':i===qIdx?'active':'';
+    return`<div class="progress-seg ${cls}" style="flex:${i===qIdx?3:1}${isPremium?';background:'+(i<qIdx?'var(--gold)':i===qIdx?'var(--gold)':'var(--border)'):''}"></div>`;
+  }).join('');
+  return`<div class="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-cat" style="${isPremium?'color:var(--gold)':''}">
+        ${isPremium?'✦ PREMIUM · ':''} ${q.cat.toUpperCase()}
+      </span>
+      <span class="progress-num">Q${q.num}</span>
+    </div>
+    <div class="progress-bar">${segs}</div>
+  </div>`;
+}
+
+function renderQuiz(){
+  const q=currentQ();const sel=currentSel();const isMulti=q.type==='multi';const max=q.max||99;
+  const instrText=isMulti?`Select up to ${max} <span class="q-sel">· ${sel.length}/${max}</span>`:'Choose one';
+  const optHtml=q.opts.map((opt,i)=>{
+    const isOn=sel.includes(i);const isDisabled=isMulti&&!isOn&&sel.length>=max;
+    return`<button class="opt ${isOn?'selected':''} ${isDisabled?'disabled':''}" onclick="toggleOpt(${i})" ${isDisabled?'disabled':''}>
+      <span class="opt-icon">${opt.i}</span><span class="opt-label">${opt.l}</span>
+      <div class="opt-check ${isMulti?'multi':''}">${isOn?'✓':''}</div></button>`;
+  }).join('');
+  return`<div class="quiz-wrap">
+    ${renderProgress()}
+    <h2 class="q-text">${q.q}</h2>
+    <p class="q-instr">${instrText}</p>
+    <div class="opts">${optHtml}</div>
+  </div>
+  <div class="bottom-nav">
+    <button class="btn-back ${(qIdx===0&&phase==='free_quiz')?'hidden':''}" onclick="goBack()">← Back</button>
+    <span class="nav-sel">${sel.length>0?sel.length+' selected':'select to continue'}</span>
+    <button class="btn-next ${sel.length===0?'disabled':''}" onclick="goNext()" ${sel.length===0?'disabled':''}>
+      ${(phase==='free_quiz'&&qIdx+1===FREE_LEN)||(isPrem()&&qIdx+1===PREM_LEN)?'SEE RESULTS →':'NEXT →'}
+    </button>
+  </div>`;
+}
+
+function renderGate(){
+  return`<div class="gate-wrap">
+    <div class="gate-eye">✦</div>
+    <h2 class="gate-h">You have your pathway.</h2>
+    <p class="gate-p">Want specific school recommendations with net price after aid, acceptance rates, and how well each school matches your actual profile?</p>
+    <div class="gate-card">
+      <div class="gate-card-eye">✦ PREMIUM — 5 MORE QUESTIONS</div>
+      <div class="gate-card-title">Unlock real school recommendations</div>
+      ${['Up to 8 specific schools matched to your profile','Net price after financial aid for each school','Acceptance rate and your likelihood of admission','Side-by-side comparison of your top matches'].map(f=>`<div class="gate-feat"><span class="gate-feat-check">✓</span>${f}</div>`).join('')}
+      <button class="btn-upgrade" onclick="startPremium()">UNLOCK SCHOOL RECOMMENDATIONS →</button>
+    </div>
+    <button class="btn-free-results" onclick="viewFree()">View my free pathway results →</button>
+  </div>`;
+}
+
+function renderPathwayCard(p,rank){
+  const isOpen=openCard===rank;const medals=['🎯','✅','📋'];
+  return`<div class="r-card ${isOpen?'open':''}" style="border-color:${isOpen?p.color+'70':'var(--border)'}">
+    <button class="r-header" onclick="toggleCard(${rank})">
+      <div class="r-icon" style="background:${p.accentBg};border:1px solid ${p.color}30">${p.icon}</div>
+      <div class="r-info">
+        <div class="r-badges">
+          ${rank<3?`<span style="font-size:14px">${medals[rank]}</span>`:''}
+          ${rank===0?`<span class="r-badge" style="color:${p.accent};border:1px solid ${p.accent}">BEST FIT</span>`:''}
+        </div>
+        <div class="r-title">${p.title}</div>
+        <div class="r-hl">${p.headline}</div>
+      </div>
+      <div class="r-score-wrap"><div class="r-score" style="color:${p.accent}">${p.score}%</div><div class="r-score-lbl">match</div></div>
+      <span class="r-toggle">${isOpen?'▲':'▼'}</span>
+    </button>
+    ${isOpen?`<div class="r-body">
+      <p class="r-summary" style="border-color:${p.color}">${p.summary}</p>
+      <div class="section-lbl">Why consider this path</div>
+      ${p.why.map(w=>`<div class="why-row"><span class="why-dot" style="color:${p.accent}">✦</span><span class="why-text">${w}</span></div>`).join('')}
+      <div class="info-grid">
+        <div class="info-box"><div class="info-lbl">Cost Range</div><div class="info-val">${p.cost}</div></div>
+        <div class="info-box"><div class="info-lbl">Timeline</div><div class="info-val">${p.time}</div></div>
+        <div class="info-box"><div class="info-lbl">Financial Aid</div><div class="info-val">${p.aid}</div></div>
+        <div class="info-box"><div class="info-lbl">Outcomes</div><div class="info-val">${p.outcomes}</div></div>
+      </div>
+      <div class="section-lbl">Example Schools</div>
+      <div class="school-chip-row">${p.schools.map(s=>`<span class="school-chip" style="color:${p.accent};border:1px solid ${p.color}30">${s}</span>`).join('')}</div>
+      <div class="watch-box" style="background:${p.accentBg};border:1px solid ${p.color}20">
+        <span class="watch-kw" style="color:${p.accent}">WATCH OUT  </span>
+        <span class="watch-txt">${p.watch}</span>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function renderSchoolCard(school,rank){
+  const isOpen=openSchool===rank+100;
+  return`<div class="school-card ${isOpen?'open':''}">
+    <button class="school-header" onclick="toggleSchool(${rank+100})">
+      <div class="school-rank">#${rank+1}</div>
+      <div class="school-info">
+        <div class="school-name">${school.name}</div>
+        <div class="school-meta">${school.loc} · ${school.type}</div>
+      </div>
+      <div class="school-price">
+        <div class="school-net">${school.net}</div>
+        <div class="school-net-lbl">avg net price</div>
+      </div>
+      <span class="r-toggle">${isOpen?'▲':'▼'}</span>
+    </button>
+    ${isOpen?`<div class="school-body">
+      <p class="school-note">${school.note}</p>
+      <div class="school-stats">
+        <div class="stat-box"><div class="stat-lbl">Sticker Price</div><div class="stat-val">${school.tuition}</div></div>
+        <div class="stat-box"><div class="stat-lbl">Acceptance</div><div class="stat-val">${school.accept}</div></div>
+        <div class="stat-box"><div class="stat-lbl">Net Price</div><div class="stat-val">${school.net}</div></div>
+      </div>
+      <div class="section-lbl">Top Strengths</div>
+      <div class="strength-tags">${school.strengths.map(s=>`<span class="strength-tag">${s}</span>`).join('')}</div>
+    </div>`:''}
+  </div>`;
+}
+
+function renderFreeResults(){
+  return`<div class="results-wrap">
+    <div class="results-eye">YOUR PATHWAY</div>
+    <h2 class="results-h">Your college paths.</h2>
+    <p class="results-sub">Based on your goals, finances, and priorities. Tap each to see the full breakdown.</p>
+    ${pathways.slice(0,4).map((p,i)=>renderPathwayCard(p,i)).join('')}
+    <div class="upgrade-cta">
+      <div class="upgrade-eye">✦ WANT SPECIFIC SCHOOLS?</div>
+      <p class="upgrade-txt">Answer 5 more questions to get up to 8 real school recommendations with net price after aid, acceptance rates, and how well each matches your profile.</p>
+      <button class="btn-upgrade-sm" onclick="startPremium()">GET SCHOOL RECOMMENDATIONS →</button>
+    </div>
+    <button class="btn-retake" onclick="restart()">↩ Retake Quiz</button>
+  </div>`;
+}
+
+function renderPremResults(){
+  return`<div class="results-wrap">
+    <div class="results-eye">✦ PREMIUM RESULTS</div>
+    <h2 class="results-h">Your schools and pathways.</h2>
+    <p class="results-sub">Matched to your GPA, region, finances, and goals. Net price shown is the average after financial aid — not the sticker price.</p>
+    <div class="section-lbl" style="margin-bottom:14px">✦ YOUR SCHOOL MATCHES</div>
+    ${schools.map((s,i)=>renderSchoolCard(s,i)).join('')}
+    <div style="margin-top:24px;margin-bottom:14px"><div class="section-lbl">YOUR PATHWAY MATCHES</div></div>
+    ${pathways.slice(0,3).map((p,i)=>renderPathwayCard(p,i)).join('')}
+    <button class="btn-retake" onclick="restart()">↩ Retake Quiz</button>
+  </div>`;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(phase==='intro')app.innerHTML=renderIntro();
+  else if(phase==='free_quiz'||phase==='prem_quiz')app.innerHTML=renderQuiz();
+  else if(phase==='gate')app.innerHTML=renderGate();
+  else if(phase==='free_results')app.innerHTML=renderFreeResults();
+  else if(phase==='prem_results')app.innerHTML=renderPremResults();
+  window.scrollTo(0,0);
+}
+
+function startFree(){phase='free_quiz';qIdx=0;render();}
+function startPremium(){phase='prem_quiz';qIdx=0;render();}
+function viewFree(){phase='free_results';render();}
+
+function goBack(){
+  if(phase==='free_quiz'&&qIdx>0){qIdx--;render();}
+  else if(phase==='prem_quiz'&&qIdx>0){qIdx--;render();}
+  else if(phase==='prem_quiz'&&qIdx===0){phase='gate';render();}
+}
+
+function goNext(){
+  const sel=currentSel();if(sel.length===0)return;
+  if(phase==='free_quiz'){
+    if(qIdx+1>=FREE_LEN){
+      pathways=scorePathways(freeAnswers,FREE_QS);
+      phase='gate';
+    } else qIdx++;
+  } else {
+    if(qIdx+1>=PREM_LEN){
+      const allAns=[...freeAnswers,...premAnswers];
+      pathways=scorePathways(allAns,[...FREE_QS,...PREMIUM_QS]);
+      schools=scoreSchools(allAns);
+      phase='prem_results';
+    } else qIdx++;
+  }
+  render();
+}
+
+function toggleOpt(i){
+  const q=currentQ();
+  const arr=isPrem()?premAnswers:freeAnswers;
+  const sel=arr[qIdx];const isMulti=q.type==='multi';
+  if(!isMulti){arr[qIdx]=sel.includes(i)?[]:[i];}
+  else{if(sel.includes(i))arr[qIdx]=sel.filter(x=>x!==i);else if(sel.length<(q.max||99))arr[qIdx]=[...sel,i];}
+  render();
+}
+
+function toggleCard(rank){openCard=openCard===rank?-1:rank;render();}
+function toggleSchool(rank){openSchool=openSchool===rank?-1:rank;render();}
+
+function restart(){
+  phase='intro';qIdx=0;openCard=0;openSchool=0;
+  freeAnswers=Array.from({length:FREE_LEN},()=>[]);
+  premAnswers=Array.from({length:PREM_LEN},()=>[]);
+  pathways=null;schools=null;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
